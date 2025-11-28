@@ -12,11 +12,11 @@
 1. [Overview](#overview)  
 2. [Folder Structure](#folder-structure)
 3. [Installation](#installation)
-5. [Quick Usage](#quick-usage)  
-6. [Theme JSON Structure](#theme-json-structure)  
-7. [Troubleshooting](#troubleshooting)  
-8. [Contributing](#contributing)
-9. [Credits](#credits)
+4. [Quick Usage](#quick-usage)  
+5. [Theme JSON Structure](#theme-json-structure)  
+6. [Troubleshooting](#troubleshooting)  
+7. [Contributing](#contributing)
+8. [Credits](#credits)
 
 ---
 
@@ -43,11 +43,12 @@ theme/
 ````
 
 ---
+
 ## Installation
+
 ---
 
-
-# YASB + Komorebi Installation Guide (Windows)
+## YASB + Komorebi Installation Guide (Windows)
 
 This guide walks you through installing **YASB** and **Komorebi**, setting up configuration folders, and creating system environment variables required for proper integration.
 
@@ -62,6 +63,7 @@ Install YASB First
 ```powershell
 winget install --id AmN.yasb
 ```
+
 Now Install Komorebi + WHKD
 
 ```powershell
@@ -94,7 +96,7 @@ New-Item -Path $komorebiConfig -ItemType Directory -Force | Out-Null
 
 Recommended location:
 
-```
+```powershell
 C:\Users\<username>\.config\yasb-theme-manager
 ```
 
@@ -136,6 +138,7 @@ Points to your Komorebi and Yasb Theme Manager folders.
 setx KOMOREBI_CONFIG_HOME "%USERPROFILE%\.config\komorebi" /M
 setx YASB_THEME_MANAGER "%USERPROFILE%\.config\yasb-theme-manager" /M
 ```
+
 > **Important:** Sign out and sign back in (or reboot) so GUI apps and services can see the new variables.
 
 ---
@@ -150,7 +153,7 @@ komorebic configuration
 
 Check that it reads configs from:
 
-```
+```powershell
 C:\Users\<username>\.config\komorebi\komorebi.json
 ```
 
@@ -272,5 +275,6 @@ npm --prefix "C:\Users\<username>\.config\theme\selector-app" start
 - PRs welcome for UI improvements, scripts, or new themes.
 
 ## Credits
+
 - [Komorebi Repo](https://github.com/LGUG2Z/komorebi)
 - [YASB Repo](https://github.com/amnweb/yasb)
