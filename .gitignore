@@ -3,8 +3,8 @@ node_modules/
 selector-app/node_modules/
 
 # theme status files
-.current_status_subtheme
-.current_status_theme
+*.current_status
+*.current_status
 
 # Logs
 npm-debug.log*

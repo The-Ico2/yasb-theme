@@ -33,8 +33,8 @@ $root = $scriptDir
 $themeJsonPath = Join-Path $root "themes.json"
 # New structure: status bar themes live in `yasb-themes`.
 $yasbThemesRoot = Join-Path $root "yasb-themes"
-$stateFile     = Join-Path $root ".current_status_theme"
-$stateSubFile  = Join-Path $root ".current_status_subtheme"
+$stateFile     = Join-Path $root "theme.current_status"
+$stateSubFile  = Join-Path $root "subtheme.current_status"
 # Backwards-compat: legacy themes folder
 $legacyThemesFolder = Join-Path $root "themes"
 

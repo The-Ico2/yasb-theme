@@ -1,8 +1,8 @@
 # Prints the currently applied status theme and sub-theme (if any)
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $root = $scriptDir
-$stateFile = Join-Path $root ".current_status_theme"
-$stateSubFile = Join-Path $root ".current_status_subtheme"
+$stateFile = Join-Path $root "theme.current_status"
+$stateSubFile = Join-Path $root "subtheme.current_status"
 $theme = ""
 $sub = ""
 if (Test-Path $stateFile) { $theme = (Get-Content $stateFile -Raw).Trim() }
