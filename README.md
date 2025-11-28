@@ -1,22 +1,49 @@
-# YASB Theme Manager
+# YASB Theme Selector
 
-**theme manager for YASB**
-A small Theme Manager system for YASB (Yet Another Status Bar) with a PowerShell script, an Electron selector UI, and theme definitions you can apply to change YASB’s `style.css` root variables and optionally trigger Wallpaper Engine.
+⚠️ **Disclaimer — Manual Theme Installation Required**
 
-Repository: [https://github.com/The-Ico2/yasb-theme](https://github.com/The-Ico2/yasb-theme)
-
----
-
-## ⚠️ Important — Manual theme install disclaimer
-
-> **Themes must be added manually.** This project does **not** currently support automatically pulling themes from GitHub repositories.
-> This is a deliberate limitation for now; **automatic remote theme fetching is an intended feature for a future release.**
-
-Until that feature exists, add themes by editing the `yasb-themes/` folder per the examples in this repo.
+> **Themes must be added manually.** This project does **not** currently support automatically pulling themes from GitHub repositories.  
+> Automatic remote theme fetching is planned for a future release. Until then, add themes by editing the `yasb-themes/` folder per the examples in this repo.
 
 ---
 
-## Contents
+## Table of Contents
+
+1. [Overview](#overview)  
+2. [Folder Structure](#folder-structure)  
+3. [Quick Usage](#quick-usage)  
+4. [Komorebi + YASB Integration](#komorebi--yasb-integration)  
+   - [1) Install YASB & Komorebi](#1-install-yasb--komorebi)  
+   - [2) Create the Komorebi Config Folder](#2-create-the-komorebi-config-folder)  
+   - [3) Move / Copy Komorebi Config Files](#3-move--copy-komorebi-config-files)  
+   - [4) Set KOMOREBI_CONFIG_HOME System Variable](#4-set-komorebi_config_home-system-variable)  
+   - [5) Start Komorebi and Test](#5-start-komorebi-and-test)  
+   - [6) Configure YASB to Call Komorebi](#6-configure-yasb-to-call-komorebi)  
+5. [Theme Switcher YASB Widget](#theme-switcher-yasb-widget)  
+6. [theme.ps1 Notes](#themepowershell-notes)  
+7. [Theme JSON Structure](#theme-json-structure)  
+8. [Electron Selector UI (`selector-app`)](#electron-selector-uiselector-app)  
+9. [Scrollbars, Visuals, and Theme Assets](#scrollbars-visuals-and-theme-assets)  
+10. [Troubleshooting](#troubleshooting)  
+11. [Advanced: Automation Script](#advanced-automation-script)  
+12. [Credits](#credits)  
+13. [Contributing](#contributing)  
+14. [Environment Variables (Windows)](#environment-variables-windows)
+
+---
+
+## Overview
+
+**YASB Theme Manager** is a lightweight system for managing and applying themes to **YASB (Yet Another Status Bar)**.  
+It includes:
+
+- A **PowerShell script** to list, cycle, and apply themes.
+- An **Electron GUI selector** to preview and select themes.
+- Theme definitions that modify YASB’s `style.css` root variables and optionally control Wallpaper Engine.
+
+---
+
+## Folder Structure
 
 ```powershell
 theme/
@@ -24,90 +51,85 @@ theme/
 ├─ themes/               # per-theme folders (neon-paradise, pastel-paradise, ...)
 ├─ theme.ps1             # PowerShell theme switcher script
 ├─ theme.json            # theme metadata + root variables
-└─ README.md             # (you are here)
-```
+└─ README.md             # (this file)
+````
 
 ---
 
-## Quick summary — What it does
+## Quick Usage
 
-* `theme.ps1` — list, cycle and apply themes. It writes CSS root variable blocks into YASB’s `style.css` and optionally controls Wallpaper Engine (if defined).
-* `selector-app/` — Electron UI to browse themes and preview screenshots; launched by the YASB widget.
-* `theme.json` & `themes/` — theme data and image assets.
+From PowerShell in the `theme/` folder:
 
----
-
-## Install / Usage (short)
-
-From a PowerShell prompt in the `theme/` folder:
-
-* List available themes:
+- **List available themes:**
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\theme.ps1 --list
 ```
 
-* Cycle to the next theme:
+- **Cycle to the next theme:**
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\theme.ps1 --cycle
 ```
 
-* Switch to a specific theme (interactive selector or CLI):
+- **Select a specific theme:**
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\theme.ps1 --select "neon-paradise"
 ```
 
-* Start the Electron GUI manually (one-time install + start):
+- **Run the Electron GUI manually:**
 
 ```powershell
-# install dependencies
+# Install dependencies
 npm --prefix "C:\Users\<username>\.config\theme\selector-app" install
 
-# start the selector UI
+# Start the selector UI
 npm --prefix "C:\Users\<username>\.config\theme\selector-app" start
 ```
 
 ---
 
-## Full Komorebi + YASB integration guide (recommended)
+## Komorebi + YASB Integration
 
-To make sure Komorebi and YASB pick up the same config files and YASB can start Komorebi properly, follow these steps **exactly**.
-**Note**: `KOMOREBI_CONFIG_HOME` must be set as a system (machine) environment variable so processes started by the system / other apps see it.
+To ensure YASB and Komorebi use the same configs, follow **these steps carefully**.
+
+> **Important:** `KOMOREBI_CONFIG_HOME` must be set as a **system (machine) environment variable**.
 
 ### 1) Install YASB & Komorebi
 
-Install using your preferred installer (winget, chocolatey or manual). Example search:
+Install using `winget`, Chocolatey, or manual installer:
 
 ```powershell
 winget search yasb
 winget search komorebi
 ```
 
-Install using the returned IDs or download from project pages if winget packages are unavailable.
+Install using the package IDs or official project pages if unavailable.
 
-### 2) Create the Komorebi config folder
+---
 
-We use the standard config location:
+### 2) Create the Komorebi Config Folder
+
+Standard folder:
 
 ```powershell
 C:\Users\<username>\.config\komorebi
 ```
 
-Create that folder (PowerShell):
+Create via PowerShell:
 
 ```powershell
 $dest = Join-Path $env:USERPROFILE ".config\komorebi"
 New-Item -Path $dest -ItemType Directory -Force | Out-Null
 ```
 
-### 3) Move / copy your Komorebi config files
+---
 
-Copy your existing komorebi config files (examples) into the new folder:
+### 3) Move / Copy Komorebi Config Files
 
 ```powershell
-$src = "C:\path\to\where\your\files\are"   # adjust
+$src = "C:\path\to\your\files"   # adjust
 $dest = Join-Path $env:USERPROFILE ".config\komorebi"
 
 Copy-Item -Path (Join-Path $src 'applications.json') -Destination $dest -Force
@@ -121,62 +143,55 @@ Verify:
 Get-ChildItem -Path (Join-Path $env:USERPROFILE ".config\komorebi")
 ```
 
-> Confirm that `applications.json`, `komorebi.bar.json`, and `komorebi.json` exist in `C:\Users\<username>\.config\komorebi`.
+> Confirm `applications.json`, `komorebi.bar.json`, and `komorebi.json` exist.
 
-### 4) Set `KOMOREBI_CONFIG_HOME` as a **system** (machine) environment variable
+---
 
-> **Important:** Do **not** set this in a PowerShell profile file (like `Microsoft.PowerShell_profile.ps1`) — YASB does not read shell profile variables. The variable must exist in *System Environment Variables* so GUI apps and services can read it.
+### 4) Set `KOMOREBI_CONFIG_HOME` System Variable
 
-**Option A — GUI (recommended for non-dev users):**
+> **Do not use a PowerShell profile variable.** YASB cannot detect it there. Set it as a **Machine Environment Variable**.
 
-1. Press `Win + R`, run `sysdm.cpl`.
-2. Go to **Advanced → Environment Variables…**
-3. Under **System variables** click **New…**
+**GUI (recommended):**
 
-   * **Variable name:** `KOMOREBI_CONFIG_HOME`
-   * **Variable value:** `C:\Users\<username>\.config\komorebi`
-4. Click OK → Apply.
-5. **Reboot or sign out/in** to ensure system processes see the new variable.
+1. `Win + R` → `sysdm.cpl` → Advanced → Environment Variables.
+2. **System Variables → New**
+   - Name: `KOMOREBI_CONFIG_HOME`
+   - Value: `C:\Users\<username>\.config\komorebi`
+3. Apply → **Sign out and back in** (or reboot).
 
-**Option B — PowerShell (elevated) – sets machine variable:**
-
-Open PowerShell **as Administrator** and run:
+**PowerShell (elevated):**
 
 ```powershell
-# Replace <username> automatically by $env:USERPROFILE
+# Administrator required
 [Environment]::SetEnvironmentVariable('KOMOREBI_CONFIG_HOME', "$env:USERPROFILE\.config\komorebi", 'Machine')
-
-# Verify machine-level variable
 [Environment]::GetEnvironmentVariable('KOMOREBI_CONFIG_HOME', 'Machine')
 ```
 
-If you prefer `setx` (also requires elevation):
+Or using `setx`:
 
 ```powershell
 setx KOMOREBI_CONFIG_HOME "%USERPROFILE%\.config\komorebi" /M
 ```
 
-> **Important:** After using `setx` or `[Environment]::SetEnvironmentVariable` you must **sign out and sign back in** or reboot to make the variable visible to all running apps.
+> Log out and back in to ensure apps see the new value.
 
-### 5) Start Komorebi and test
+---
 
-Start Komorebi the same way YASB will (example):
+### 5) Start Komorebi
 
 ```powershell
 komorebic start --whkd
+# or
+komorebi --start
 ```
 
-Check logs or output — Komorebi should now use the config at `%USERPROFILE%\.config\komorebi\komorebi.json`.
+Check logs: Komorebi should read configs from `%USERPROFILE%\.config\komorebi`.
 
-If it still uses a different config file, check:
+---
 
-* That the system variable `KOMOREBI_CONFIG_HOME` points to the folder you populated.
-* That the process launching Komorebi inherits system environment variables (reboot is best).
-* If YASB or another launcher runs as a different user or service, ensure the variable is available to that context.
+### 6) Configure YASB to Call Komorebi
 
-### 6) Configure YASB to call Komorebi
-
-In your `c:\Users\<username>\.config\yasb\config.yaml`, set Komorebi start/stop commands (example):
+In `c:\Users\<username>\.config\yasb\config.yaml`:
 
 ```yaml
 komorebi:
@@ -185,19 +200,19 @@ komorebi:
   reload_command: "komorebic stop --whkd && komorebic start --whkd"
 ```
 
-No path to `komorebi.json` is required when `KOMOREBI_CONFIG_HOME` is set — Komorebi should pick it up automatically.
+> With `KOMOREBI_CONFIG_HOME` set, no explicit path is required.
 
 ---
 
-## `theme_switcher` YASB widget (example & explanation)
+## Theme Switcher YASB Widget
 
-Add this widget to your YASB config (`config.yaml`) under `widgets:` and add it to your `bars:` widgets list.
+Add to your YASB `config.yaml`:
 
 ```yaml
 theme_switcher:
   type: "yasb.custom.CustomWidget"
   options:
-    label: "\ue7fe"        # icon glyph (use your icon font)
+    label: "\ue7fe"        
     label_alt: "Switch Theme"
     class_name: "theme-switcher-widget"
     exec_options:
@@ -210,24 +225,21 @@ theme_switcher:
       on_right: 'exec npm --prefix "C:\\Users\\<username>\\.config\\theme\\selector-app" start'
 ```
 
-* **Left click:** cycle theme (uses `theme.ps1 --cycle`)
-* **Middle click:** toggle the label between icon and theme name
-* **Right click:** open the Electron selector UI (starts `npm start` for `selector-app`)
-
-> Tip: replace `C:\Users\<username>\.config\theme\...` with the actual path on your machine.
+- **Left click:** Cycle theme
+- **Middle click:** Toggle label
+- **Right click:** Launch Electron selector UI
 
 ---
 
-## `theme.ps1` notes
+## theme.ps1 Notes
 
-* `theme.ps1` writes CSS variable blocks into your YASB stylesheet (e.g. `C:\Users\<username>\.config\yasb\style.css` or `styles.css` depending on your setup).
-* Ensure your `config.yaml` for YASB has `watch_stylesheet: true` so YASB picks up live changes.
+- Writes CSS root variable blocks to YASB’s `style.css`.
+- Can optionally control Wallpaper Engine (`wallpaper-engine` entries in theme JSON).
+- Ensure `watch_stylesheet: true` in `config.yaml`.
 
 ---
 
-## Theme JSON structure (example)
-
-Top-level `theme.json` structure:
+## Theme JSON Structure
 
 ```json
 {
@@ -243,126 +255,67 @@ Top-level `theme.json` structure:
       "file": "C:\\path\\to\\wallpaper.wpl"
     },
     "preview-img": ["1.png", "2.png"]
-  },
-
-  "pastel-paradise": {
-    "root-variables": {
-      "bg-dark": "#1a1a2e",
-      "accent1": "#e0aaff",
-      "accent2": "#aafff4",
-      "accent3": "#ffb3e6",
-      "text-main": "#f0f0f8"
-    },
-    "wallpaper-engine": {},
-    "preview-img": ["1.png"]
   }
 }
 ```
 
-`root-variables` maps CSS root token names **without the leading `--`** (the script will prepend `--` when writing to the stylesheet).
+> `root-variables` maps CSS token names without the leading `--`.
 
 ---
 
-## Electron selector (`selector-app`) — usage & notes
-
-To run the GUI:
+## Electron Selector UI (`selector-app`)
 
 ```powershell
 npm --prefix "C:\Users\<username>\.config\theme\selector-app" install
 npm --prefix "C:\Users\<username>\.config\theme\selector-app" start
 ```
 
-The widget `on_right` callback uses `npm --prefix ... start` to launch the app. You can change that to a packaged Electron binary if you ship one.
-
 ---
 
-## Scrollbar / Visual polish & theme assets
+## Scrollbars, Visuals & Theme Assets
 
-* Themes include preview screenshots in `themes/<theme>/preview-img/`. The Electron selector shows them in the UI.
-* You must provide images used by `preview-img` in the theme folder — the script & selector look for these locally.
-* You can include Wallpaper Engine data in `wallpaper-engine` blocks; `theme.ps1` will attempt to apply or install the wallpaper if possible.
+- Previews in `themes/<theme>/preview-img/`
+- Provide images locally for the script & Electron UI
+- Wallpaper Engine integration optional
 
 ---
 
 ## Troubleshooting
 
-**YASB doesn’t pick up theme changes**
+- **YASB not picking up themes:**
+  Check `style.css` path and `watch_stylesheet: true`.
 
-* Ensure `style.css` path in `theme.ps1` matches your YASB install (e.g. `C:\Users\<username>\.config\yasb\style.css`).
-* Ensure `watch_stylesheet: true` in `c:\Users\<username>\.config\yasb\config.yaml`.
-* If YASB was started before you set `KOMOREBI_CONFIG_HOME` or after you changed environment variables, **restart YASB** and/or **log out/in**.
+- **Komorebi loads wrong config:**
+  Verify `KOMOREBI_CONFIG_HOME` points to correct folder. Reboot if necessary.
 
-**Komorebi loads the wrong config**
-
-* Verify the system environment variable is set and points to the intended folder:
-
-  ```powershell
-  [Environment]::GetEnvironmentVariable('KOMOREBI_CONFIG_HOME', 'Machine')
-  ```
-
-* If you used `setx`, open a new session, or sign out & back in, or reboot.
-
-**`theme.ps1` errors when applying wallpaper**
-
-* Confirm Wallpaper Engine path in `theme.ps1` matches your install.
-* The script will warn if the wallpaper file is missing; you must supply or configure the wallpaper asset.
-
----
-
-## Advanced — automation script (optional)
-
-If you want, I can include a one-shot PowerShell script that:
-
-* Creates `C:\Users\<username>\.config\komorebi`,
-* Copies supplied Komorebi config files to it,
-* Sets `KOMOREBI_CONFIG_HOME` as a machine environment variable (requires elevation),
-* Restarts a given process or notifies you to log off.
-
-Tell me if you'd like that and I’ll add it to the repo.
-
----
-
-## Credits
-
-* Project: The-Ico2 / YASB Theme Selector — [https://github.com/The-Ico2/yasb-theme](https://github.com/The-Ico2/yasb-theme)
-* Core contributors and authors: see `meta` files embedded in themes (displayed in the Electron UI).
+- **Wallpaper errors:**
+  Confirm Wallpaper Engine path and files.
 
 ---
 
 ## Contributing
 
-* Add themes manually: create a folder in `yasb-themes/` and add a `meta.json` and preview images; or add entries to `theme.json`.
-* Submit PRs for the Electron UI improvements, scripts, or new themes.
-* If you want remote theme fetching (GitHub pull), open an issue — it’s a planned future feature.
+- Add themes manually via `yasb-themes/`
+- PRs welcome for UI improvements, scripts, or new themes.
+- GitHub remote fetching is planned for future releases.
 
 ---
 
-### Environment variables (Windows)
+## Environment Variables (Windows)
 
-Two system environment variables are used by this setup. Set them as **Machine** (system) variables so GUI apps and services inherit them.
-
-- **YASB_THEME_MANAGER**: should point to the root folder of this theme manager installation.
-  - Example value: `C:\Users\<username>\.config\yasb-theme-manager`
-- **KOMOREBI_CONFIG_HOME**: should point to your Komorebi config folder.
-  - Example value: `C:\Users\<username>\.config\komorebi`
-
-Set both variables from an elevated PowerShell prompt (Administrator):
+Set as **System / Machine variables**:
 
 ```powershell
-# Replace <username> automatically by $env:USERPROFILE
+# Example paths
 [Environment]::SetEnvironmentVariable('YASB_THEME_MANAGER', "$env:USERPROFILE\.config\yasb-theme-manager", 'Machine')
 [Environment]::SetEnvironmentVariable('KOMOREBI_CONFIG_HOME', "$env:USERPROFILE\.config\komorebi", 'Machine')
-
-# Or using setx (also requires elevation):
-setx YASB_THEME_MANAGER "%USERPROFILE%\.config\yasb-theme-manager" /M
-setx KOMOREBI_CONFIG_HOME "%USERPROFILE%\.config\komorebi" /M
 ```
 
-Verify the machine-level variables (PowerShell):
+Verify:
 
 ```powershell
 [Environment]::GetEnvironmentVariable('YASB_THEME_MANAGER', 'Machine')
 [Environment]::GetEnvironmentVariable('KOMOREBI_CONFIG_HOME', 'Machine')
 ```
 
-Important: after setting machine variables with `setx` or `[Environment]::SetEnvironmentVariable` you must **sign out and sign back in** (or reboot) so running GUI processes inherit the new values.
+> Log out and back in to apply for all running apps.
