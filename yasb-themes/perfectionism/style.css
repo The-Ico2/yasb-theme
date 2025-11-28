@@ -16,8 +16,9 @@
   --bg-widget: rgba(18, 18, 34, 0.65);
   --bg-widget-hover: rgba(255,255,255,0.12);
   --bg-widget-active: rgba(255,255,255,0.18);
-  --text-main: #e6e6ff;
-  --text-subtle: #9aa0c0;
+  --text-light: #e6e6ff;
+  --text-gray: #9aa0c0;
+  --text-dark: #424247;
   --text-accent1: #bc13fe;
   --text-accent2: #00dfff;
   --text-accent3: #ff67c6;
@@ -39,7 +40,7 @@
   background-color: var(--bg-panel);
   border: 1px solid var(--bg-widget-hover);
   border-radius: 4px;
-  color: var(--text-main);
+  color: var(--text-light);
   padding: 4px 8px 5px 8px;
   font-size: 12px;
   font-family: 'Segoe UI';
@@ -55,7 +56,7 @@
   padding: 4px 0px;
   font-family: 'Segoe UI';
   font-size: 12px;
-  color: var(--text-main);
+  color: var(--text-light);
 }
 
 .context-menu::right-arrow {
@@ -76,7 +77,7 @@
 .context-menu::item:selected,
 .context-menu .menu-checkbox:hover {
   background-color: var(--bg-widget-hover);
-  color: var(--text-main);
+  color: var(--text-light);
 }
 
 .context-menu::separator {
@@ -95,7 +96,7 @@
   padding: 8px 16px;
   font-size: 12px;
   margin: 0;
-  color: var(--text-main);
+  color: var(--text-light);
   font-family: 'Segoe UI'
 }
 
@@ -105,7 +106,7 @@
 }
 
 .context-menu .menu-checkbox .checkbox:unchecked {
-  color: var(--text-main);
+  color: var(--text-light);
 }
 
 .context-menu .menu-checkbox .checkbox::indicator {
@@ -116,7 +117,7 @@
 }
 
 .context-menu .menu-checkbox .checkbox::indicator:unchecked {
-  background: var(--text-subtle);
+  background: var(--text-gray);
   border-radius: 2px;
 }
 
@@ -153,7 +154,7 @@
 
 /* Workspaces / Komorebi Styles */
 .komorebi-workspaces .offline-status {
-  color: var(--text-main);
+  color: var(--text-light);
   font-size: 12px;
   padding: 0 0 0 4px;
   font-weight: 600;
@@ -165,7 +166,7 @@
   margin: 0 3px;
   padding: 0;
   font-size: 14px;
-  color: var(--text-main);
+  color: var(--text-dark);
 }
 
 .komorebi-workspaces .ws-btn:hover {
@@ -199,7 +200,7 @@
 .clock-popup.calendar .calendar-table,
 .clock-popup.calendar .calendar-table::item {
     background-color: rgba(17, 17, 27, 0);
-    color: var(--text-subtle);
+    color: var(--text-gray);
     font-family: 'Segoe UI';
     margin: 0;
     padding: 0;
@@ -317,13 +318,13 @@
 .uptime {
   font-size: 14px;
   margin-bottom: 10px;
-  color: var(--text-main);
+  color: var(--text-light);
   font-weight: 600;
 }
 
 /* replace surface2 */
 .uptime {
-  color: var(--text-main);
+  color: var(--text-light);
 }
 
 /* Audio Menu / Volume Controls (detail) */
@@ -449,13 +450,13 @@
   padding: 8px 48px 9px 16px;
   font-size: 12px;
   font-family: 'Segoe UI';
-  color: var(--text-main);
+  color: var(--text-light);
   font-weight: 600;
 }
 
 .home-menu .menu-item:hover {
   background-color: var(--glass-2);
-  color: var(--text-main)
+  color: var(--text-light)
 }
 
 .home-menu .separator {
@@ -481,7 +482,7 @@
 
 .media-menu .artist {
   font-size: 13px;
-  color: var(--text-main);
+  color: var(--text-light);
   margin-top: 0px;
 }
 
@@ -498,47 +499,47 @@
 
 .media-menu .source.aimp {
   background-color: #6f42c1;
-  color: var(--text-main)
+  color: var(--text-light)
 }
 
 .media-menu .source.apple-music {
   background-color: #fa2b56;
-  color: var(--text-main)
+  color: var(--text-light)
 }
 
 .media-menu .source.brave {
   background-color: #fb542b;
-  color: var(--text-main)
+  color: var(--text-light)
 }
 
 .media-menu .source.chrome {
   background-color: #4285f4;
-  color: var(--text-main)
+  color: var(--text-light)
 }
 
 .media-menu .source.edge {
   background-color: #0078d4;
-  color: var(--text-main)
+  color: var(--text-light)
 }
 
 .media-menu .source.firefox {
   background-color: #ff7139;
-  color: var(--text-main)
+  color: var(--text-light)
 }
 
 .media-menu .source.foobar2000 {
   background-color: #444444;
-  color: var(--text-main)
+  color: var(--text-light)
 }
 
 .media-menu .source.media-player {
   background-color: #0078d4;
-  color: var(--text-main)
+  color: var(--text-light)
 }
 
 .media-menu .source.murglar {
   background-color: #8a8a8a;
-  color: var(--text-main)
+  color: var(--text-light)
 }
 
 .media-menu .source.musicbee {
@@ -548,27 +549,27 @@
 
 .media-menu .source.nsmusics {
   background-color: #e64a19;
-  color: var(--text-main)
+  color: var(--text-light)
 }
 
 .media-menu .source.opera {
   background-color: #ff1b2d;
-  color: var(--text-main)
+  color: var(--text-light)
 }
 
 .media-menu .source.qobuz {
   background-color: #003a6f;
-  color: var(--text-main)
+  color: var(--text-light)
 }
 
 .media-menu .source.spotify {
   background-color: #1db954;
-  color: var(--text-main)
+  color: var(--text-light)
 }
 
 .media-menu .source.tidal {
   background-color: #000000;
-  color: var(--text-main)
+  color: var(--text-light)
 }
 
 .media-menu .source.winamp {
@@ -578,12 +579,12 @@
 
 .media-menu .source.youtube {
   background-color: #ff0000;
-  color: var(--text-main)
+  color: var(--text-light)
 }
 
 .media-menu .source.youtube-music {
   background-color: #c51f1f;
-  color: var(--text-main)
+  color: var(--text-light)
 }
 
 .media-menu .source.zen {
@@ -626,7 +627,7 @@
 .media-menu .playback-time {
   font-size: 13px;
   font-family: 'Segoe UI';
-  color: var(--text-main);
+  color: var(--text-light);
   margin-top: 20px;
   min-width: 100px;
 }
@@ -689,13 +690,13 @@
 .media-menu .app-volume-container .mute-button,
 .media-menu .app-volume-container .unmute-button {
   font-size: 16px;
-  color: var(--text-main);
+  color: var(--text-light);
   font-family: "Segoe Fluent Icons";
   margin-top: 4px;
 }
 
 .media-menu .app-volume-container .unmute-button {
-  color: var(--text-main);
+  color: var(--text-light);
 }
 
 /* Cava Widget */
@@ -759,7 +760,7 @@
   margin-bottom: 2px;
   padding: 12px;
   background-color: var(--bg-surface);
-  color: var(--text-main);
+  color: var(--text-light);
   border-bottom: 1px solid var(--border-soft);
 }
 
@@ -770,7 +771,7 @@
   margin-bottom: 2px;
   padding: 12px;
   background-color: var(--accent-error);
-  color: var(--text-main);
+  color: var(--text-light);
   border-bottom: 1px solid var(--border-soft);
 }
 
@@ -862,7 +863,7 @@
   padding: 0 2px;
   min-width: 26px;
   min-height: 26px;
-  color: var(--text-main);
+  color: var(--text-light);
 }
 
 .wifi-menu .footer .refresh-icon {
@@ -871,7 +872,7 @@
   border: none;
   min-width: 26px;
   min-height: 26px;
-  color: var(--text-main);
+  color: var(--text-light);
 }
 
 .wifi-menu .footer .refresh-icon:hover {
@@ -882,7 +883,7 @@
 
 * {
   font-size: 13px;
-  color: var(--text-main);
+  color: var(--text-light);
   font-weight: 600;
   font-family: "JetBrainsMono NFP", "JetBrains Mono", monospace;
   margin: 0;

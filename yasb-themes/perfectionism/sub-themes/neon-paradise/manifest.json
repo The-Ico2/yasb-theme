@@ -7,6 +7,9 @@
     "--accent1": "#bc13fe",
     "--accent2": "#00dfff",
     "--accent3": "#ff67c6",
+    "--text-light": "#e6e6ff",
+    "--text-gray": "#9aa0c0",
+    "--text-dark": "#424247",
 
     "--glow1": "rgba(188, 19, 254, 0.85)",
     "--glow2": "rgba(0, 223, 255, 0.85)",
@@ -25,9 +28,6 @@
     "--bg-widget": "rgba(18, 18, 34, 0.65)",
     "--bg-widget-hover": "rgba(255,255,255,0.12)",
     "--bg-widget-active": "rgba(255,255,255,0.18)",
-
-    "--text-main": "#e6e6ff",
-    "--text-subtle": "#9aa0c0",
     "--text-accent1": "#bc13fe",
     "--text-accent2": "#00dfff",
     "--text-accent3": "#ff67c6",
