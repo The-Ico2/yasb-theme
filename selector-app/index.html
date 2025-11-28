@@ -4,8 +4,48 @@
   <meta charset="UTF-8">
   <title>YASB Theme Selector</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; background: #121212; color: #eee; }
-    h1 { font-size: 24px; }
+    body { font-family: sans-serif; padding: 0; margin: 0; background: #121212; color: #eee; }
+    h1 { font-size: 24px; margin: 0; }
+    
+    /* Tab Navigation */
+    .tab-nav {
+      display: flex;
+      background: #1a1a2e;
+      border-bottom: 2px solid #333;
+      padding: 0;
+      margin: 0;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 16px 24px;
+      background: transparent;
+      color: #9aa0c0;
+      border: none;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 200ms ease;
+    }
+    .tab-btn:hover {
+      background: rgba(255,255,255,0.05);
+      color: #cbd4ff;
+    }
+    .tab-btn.active {
+      color: #00dfff;
+      border-bottom-color: #00dfff;
+      background: rgba(0,223,255,0.08);
+    }
+    
+    /* Tab Content */
+    .tab-content {
+      display: none;
+      padding: 20px;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    
     .controls { margin-bottom:12px; }
     .controls button { margin-right:8px;padding:6px 10px; }
 
@@ -55,6 +95,107 @@
     .error-badge { position:absolute; right:8px; top:8px; background:#ff4d6d; color:#fff; padding:4px 8px; border-radius:999px; font-size:11px; }
 
     .theme-preview { max-width: 100%; margin-top: 10px; border: 1px solid #444; border-radius: 4px; }
+    
+    /* Editor Styles */
+    .editor-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .editor-header {
+      background: linear-gradient(135deg, rgba(0,223,255,0.15), rgba(188,19,254,0.15));
+      padding: 24px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .editor-header h2 {
+      margin: 0 0 8px 0;
+      font-size: 28px;
+      background: linear-gradient(90deg, #00dfff, #bc13fe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .editor-subtext {
+      color: #9aa0c0;
+      font-size: 14px;
+    }
+    .editor-section {
+      background: rgba(30,30,46,0.6);
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .editor-section h3 {
+      margin: 0 0 16px 0;
+      font-size: 18px;
+      color: #cbd4ff;
+    }
+    .sub-theme-item {
+      background: rgba(20,20,36,0.8);
+      padding: 16px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(255,255,255,0.04);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .sub-theme-info {
+      flex: 1;
+    }
+    .sub-theme-name {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #e0e6ff;
+    }
+    .sub-theme-status {
+      font-size: 13px;
+      color: #9aa0c0;
+    }
+    .sub-theme-status.enabled {
+      color: #4dff88;
+    }
+    .sub-theme-status.disabled {
+      color: #ff6b6b;
+    }
+    .sub-theme-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .action-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+    .action-btn.primary {
+      background: linear-gradient(90deg, #00dfff, #bc13fe);
+      color: #071017;
+    }
+    .action-btn.secondary {
+      background: rgba(255,255,255,0.08);
+      color: #cbd4ff;
+    }
+    .action-btn.danger {
+      background: rgba(255,107,107,0.2);
+      color: #ff6b6b;
+      border: 1px solid rgba(255,107,107,0.3);
+    }
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
   </style>
 </head>
 <body>

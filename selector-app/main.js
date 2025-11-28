@@ -24,6 +24,7 @@ function createWindow() {
   // Poll for workshop-prompt.json file every 2 seconds
   const checkWorkshopPrompt = () => {
     const promptFile = path.join(__dirname, '..', 'workshop-prompt.json');
+    console.log('main: Checking for workshop prompt file at:', promptFile, 'exists:', fs.existsSync(promptFile));
     if (fs.existsSync(promptFile)) {
       try {
         const promptData = fs.readFileSync(promptFile, 'utf8');
@@ -34,13 +35,17 @@ function createWindow() {
         fs.unlinkSync(promptFile);
         console.log('main: Deleted workshop prompt file');
         
-        // Send to renderer
-        console.log('main: Sending theme-handshake event to renderer');
-        win.webContents.send('theme-handshake', workshopData);
-        
-        // Focus the window
-        if (win.isMinimized()) win.restore();
-        win.focus();
+        // Send to renderer only if webContents is ready
+        if (win && win.webContents && !win.webContents.isDestroyed()) {
+          console.log('main: Sending theme-handshake event to renderer');
+          win.webContents.send('theme-handshake', workshopData);
+          
+          // Focus the window
+          if (win.isMinimized()) win.restore();
+          win.focus();
+        } else {
+          console.warn('main: Window webContents not ready, cannot send event');
+        }
       } catch (e) {
         console.error('main: Failed to process workshop prompt file:', e);
         try { fs.unlinkSync(promptFile); } catch {}
@@ -690,7 +695,16 @@ ipcMain.handle('disable-sub-wallpaper', (event, theme, sub) => {
     const raw = fs.readFileSync(manifestPath, 'utf8');
     let parsed = {};
     try { parsed = JSON.parse(raw); } catch (e) { parsed = {}; }
-    parsed['skip-provided-wallpaper'] = true;
+    
+    // Set wallpaper-engine.enabled to false
+    if (!parsed['wallpaper-engine']) parsed['wallpaper-engine'] = {};
+    parsed['wallpaper-engine'].enabled = false;
+    
+    // Remove old property if it exists
+    if (parsed.hasOwnProperty('skip-provided-wallpaper')) {
+      delete parsed['skip-provided-wallpaper'];
+    }
+    
     fs.writeFileSync(manifestPath, JSON.stringify(parsed, null, 2), 'utf8');
     return { ok: true };
   } catch (e) {
@@ -706,7 +720,29 @@ ipcMain.handle('enable-sub-wallpaper', (event, theme, sub) => {
     const raw = fs.readFileSync(manifestPath, 'utf8');
     let parsed = {};
     try { parsed = JSON.parse(raw); } catch (e) { parsed = {}; }
-    if (parsed.hasOwnProperty('skip-provided-wallpaper')) { delete parsed['skip-provided-wallpaper']; }
+    
+    // Set wallpaper-engine.enabled to true
+    if (!parsed['wallpaper-engine']) parsed['wallpaper-engine'] = {};
+    parsed['wallpaper-engine'].enabled = true;
+    
+    // Remove old property if it exists
+    if (parsed.hasOwnProperty('skip-provided-wallpaper')) {
+      delete parsed['skip-provided-wallpaper'];
+    }
+    
+    // Delete the user-state skip file if it exists
+    const root = path.join(__dirname, '..');
+    const userStateDir = path.join(root, 'user-state');
+    const skipFile = path.join(userStateDir, `${theme}---${sub}---skip-workshop.txt`);
+    try {
+      if (fs.existsSync(skipFile)) {
+        fs.unlinkSync(skipFile);
+        console.log(`Deleted skip file: ${skipFile}`);
+      }
+    } catch (e) {
+      console.warn('Failed to delete skip file:', e);
+    }
+    
     fs.writeFileSync(manifestPath, JSON.stringify(parsed, null, 2), 'utf8');
     return { ok: true };
   } catch (e) {

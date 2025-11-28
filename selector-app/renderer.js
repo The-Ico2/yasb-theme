@@ -43,7 +43,7 @@ async function init() {
   if (!loaded || loaded.error) {
     const msg = loaded && loaded.error ? loaded.error : 'No themes found or handler missing';
     console.error('theme-selector: failed to load themes:', msg);
-    alert('Error loading themes: ' + msg);
+    showToast('Error loading themes: ' + msg, 'error');
     return;
   }
 
@@ -192,15 +192,7 @@ async function createThemeCard(themeName, info) {
     a.textContent = 'Repository';
     left.appendChild(a);
   }
-  // Apply button inside the card footer
-  const applyBtnCard = document.createElement('button');
-  applyBtnCard.className = 'apply-btn';
-  applyBtnCard.textContent = 'Apply';
-  applyBtnCard.addEventListener('click', (ev) => {
-    ev.stopPropagation();
-    applyTheme(themeName);
-  });
-  left.appendChild(applyBtnCard);
+  // Apply button removed - clicking card opens theme page
 
   footer.appendChild(left);
 
@@ -220,7 +212,7 @@ async function createThemeCard(themeName, info) {
     card.appendChild(badge);
   }
 
-  // Interaction: click opens theme page; double-click still applies the theme
+  // Interaction: click opens theme page
   card.addEventListener('click', (ev) => {
     ev.stopPropagation();
     window.themeWindow.openThemePage(themeName)
@@ -229,17 +221,12 @@ async function createThemeCard(themeName, info) {
       })
       .catch(err => console.warn('openThemePage failed', err));
   });
-  card.addEventListener('dblclick', (ev) => {
-    ev.stopPropagation();
-    applyTheme(themeName);
-  });
 
   return card;
 }
 
 async function showPreview(themeName) {
   previewContainer.innerHTML = '';  // clear
-  const info = themes[themeName];
   // Use preload helper to resolve preview image file:// or data: URIs
   const previewPaths = await window.themeAPI.getPreviewPaths(themeName) || [];
   console.debug('theme-selector: showPreview previewPaths=', previewPaths);
@@ -287,7 +274,7 @@ function applyTheme(themeName) {
           await window.themeWindow.openThemePage(result.theme);
         } catch (e) {
           console.warn('Failed to open theme page for sub selection', e);
-          alert('Please select a sub-theme from the theme page.');
+          showToast('Please select a sub-theme from the theme page.', 'info');
         }
         return;
       }
@@ -302,7 +289,7 @@ function applyTheme(themeName) {
     })
     .catch(err => {
       console.error('applyTheme error:', err);
-      showStatusToast('Failed to apply theme: ' + err, 8000);
+      showToast('Failed to apply theme: ' + err, 'error', 8);
     });
   }
 
@@ -334,7 +321,7 @@ if (window.themeEvents && typeof window.themeEvents.onWorkshopFound === 'functio
   window.themeEvents.onWorkshopFound((data) => {
     console.debug('workshop-found', data);
     hideWaitingOverlay();
-    alert(`Workshop item ${data.workshopId} downloaded — applying theme ${data.theme}/${data.sub}`);
+    showToast(`Workshop item ${data.workshopId} downloaded — applying theme ${data.theme}/${data.sub}`, 'success');
   });
 }
 
@@ -349,13 +336,13 @@ if (window.themeEvents && typeof window.themeEvents.onThemeStatus === 'function'
         if (data.line.toLowerCase().includes('theme:wallpaper: ok')) {
           hideWaitingOverlay();
           // small non-blocking toast
-          showStatusToast('Wallpaper applied');
+          showToast('Wallpaper applied', 'success');
         } else if (data.line.toLowerCase().includes('theme:wallpaper: fail') || data.line.toLowerCase().includes('theme:wallpaper: skip')) {
           hideWaitingOverlay();
-          showStatusToast(data.line);
+          showToast(data.line, 'warn');
         } else {
           // general status: show briefly
-          showStatusToast(data.line, 3000);
+          showToast(data.line, 'info', 3);
         }
       }
     } catch (e) { console.warn('theme-status handler err', e); }
@@ -371,14 +358,24 @@ if (window.themeEvents && typeof window.themeEvents.onHandshake === 'function') 
   console.log('RENDERER: Registering onHandshake listener - READY');
   window.themeEvents.onHandshake((data) => {
     try {
-      console.log('RENDERER: *** onHandshake callback FIRED with data:', data);
+      console.log('RENDERER: *** onHandshake callback FIRED with data:', JSON.stringify(data, null, 2));
       console.debug('theme-handshake', data);
       try { showDebugBanner(`handshake: ${JSON.stringify(data)}`); } catch(e){}
       if (data && data.needs_workshop) {
         console.log('RENDERER: Creating workshop prompt overlay...');
-        // show the same non-blocking in-UI prompt used by applyTheme
+        console.log('RENDERER: Workshop ID:', data.workshop_id || data.workshopId);
+        console.log('RENDERER: Theme:', data.theme, 'Sub:', data.sub);
+
+        // remove any existing prompt
         const existing = document.getElementById('workshop-prompt');
         if (existing) existing.remove();
+
+        // compute commonly used values
+        const steamUrl = data.steam_url || data.steamUrl || data.link;
+        const workshopId = data.workshop_id || data.workshopId;
+        const themeCommand = data.theme_select_command || `${data.theme}/${data.sub || ''}`;
+
+        // build overlay + panel
         const overlay = document.createElement('div');
         overlay.id = 'workshop-prompt';
         overlay.style.position = 'fixed';
@@ -389,6 +386,7 @@ if (window.themeEvents && typeof window.themeEvents.onHandshake === 'function') 
         overlay.style.justifyContent = 'center';
         overlay.style.zIndex = 10001;
         overlay.style.pointerEvents = 'none';
+
         const panel = document.createElement('div');
         panel.style.pointerEvents = 'auto';
         panel.style.margin = '12px';
@@ -398,43 +396,54 @@ if (window.themeEvents && typeof window.themeEvents.onHandshake === 'function') 
         panel.style.borderRadius = '12px';
         panel.style.boxShadow = '0 8px 24px rgba(0,0,0,0.6)';
         panel.style.maxWidth = '500px';
-        
+
         const title = document.createElement('div');
         title.style.fontSize = '18px';
         title.style.fontWeight = 'bold';
         title.style.marginBottom = '12px';
         title.textContent = 'Wallpaper Not Found';
-        
+
         const msg = document.createElement('div');
         msg.style.marginBottom = '16px';
         msg.style.lineHeight = '1.5';
         msg.innerHTML = `This sub-theme requires a Wallpaper Engine wallpaper that is not installed.<br><br><strong>What would you like to do?</strong>`;
-        
+
         const btnRow = document.createElement('div');
         btnRow.style.display = 'flex';
         btnRow.style.gap = '10px';
         btnRow.style.flexWrap = 'wrap';
-        
+
+        // Buttons
         const openBtn = document.createElement('button');
         openBtn.textContent = 'Open Steam Workshop';
         openBtn.className = 'subtheme-apply-btn';
+
+        const disableBtn = document.createElement('button');
+        disableBtn.textContent = 'Disable Wallpaper';
+        disableBtn.className = 'subtheme-disable-btn';
+
+        const changeBtn = document.createElement('button');
+        changeBtn.textContent = 'Choose Different';
+        changeBtn.className = 'subtheme-change-btn';
+
+        const closeBtn = document.createElement('button');
+        closeBtn.textContent = 'Close';
+        closeBtn.className = 'subtheme-decline-btn';
+
+        // wire handlers
         openBtn.addEventListener('click', async () => {
-          const steamUrl = data.steam_url || data.steamUrl || data.link;
-          const workshopId = data.workshop_id || data.workshopId;
-          const themeCommand = data.theme_select_command || `${data.theme}/${data.sub || ''}`;
-          
-          console.log('Opening Steam Workshop URL:', steamUrl);
-          try { 
-            await window.themeAPI.openExternal(steamUrl); 
-            console.log('Steam URL opened successfully');
-          } catch (e) { 
-            console.error('openExternal failed', e); 
-            alert('Failed to open Steam: ' + e);
+          console.log('Opening Steam Workshop URL:', steamUrl, 'themeCommand:', themeCommand);
+          try {
+            if (steamUrl) await window.themeAPI.openExternal(steamUrl);
+            else console.warn('No Steam URL provided for workshop item');
+          } catch (e) {
+            console.error('openExternal failed', e);
+            showToast('Failed to open Steam: ' + e, 'error');
           }
-          
+
           overlay.remove();
           showWaitingOverlay(`Waiting for workshop item ${workshopId} to download...\nClick to cancel`);
-          
+
           // Add click handler to cancel waiting
           const waitOverlay = document.getElementById('waiting-overlay');
           if (waitOverlay) {
@@ -445,89 +454,132 @@ if (window.themeEvents && typeof window.themeEvents.onHandshake === 'function') 
             };
             waitOverlay.addEventListener('click', cancelHandler);
           }
-          
-          const watch = await window.themeAPI.watchWorkshop(workshopId, data.theme, data.sub || '');
-          if (watch && watch.id) {
-            console.log(`Started watching for workshop item ${workshopId}`);
+
+          try {
+            const watch = await window.themeAPI.watchWorkshop(workshopId, data.theme, data.sub || '');
+            if (watch && watch.id) {
+              console.log(`Started watching for workshop item ${workshopId}`);
+            }
+          } catch (e) {
+            console.warn('watchWorkshop failed', e);
+            hideWaitingOverlay();
+            showToast('Failed to watch workshop item', 'error');
           }
         });
 
         disableBtn.addEventListener('click', async () => {
           try {
+            // Mark to skip workshop (creates skip file)
+            await window.themeAPI.markSkipWorkshop(data.theme, data.sub || '');
+            // Also disable in manifest permanently
             const result = await window.themeAPI.disableSubWallpaper(data.theme, data.sub || '');
             if (result && result.ok) {
-              showStatusToast('Wallpaper disabled for this sub-theme');
+              showToast('Wallpaper permanently disabled for this sub-theme', 'success');
             } else {
-              showStatusToast('Failed to disable wallpaper');
+              showToast('Wallpaper disabled (skip file created)', 'success');
             }
           } catch (e) {
             console.error('disableSubWallpaper failed', e);
-            showStatusToast('Failed to disable wallpaper');
+            showToast('Failed to disable wallpaper', 'error');
           }
           overlay.remove();
-        });
-        
-        changeBtn.addEventListener('click', async () => {
-          overlay.remove();
-          showStatusToast('Custom wallpaper selection - Coming soon!');
-          // TODO: Implement custom wallpaper selection
-          // This would open a file picker to select a local wallpaper or enter a workshop ID
-        });verlay.remove();
-          showWaitingOverlay(`Waiting for workshop item ${workshopId} to download...\nClick to cancel`);
-          
-          // Add click handler to cancel waiting
-          const waitOverlay = document.getElementById('waiting-overlay');
-          if (waitOverlay) {
-            waitOverlay.style.cursor = 'pointer';
-            const cancelHandler = () => {
-              hideWaitingOverlay();
-              waitOverlay.removeEventListener('click', cancelHandler);
-            };
-            waitOverlay.addEventListener('click', cancelHandler);
-          }
-          
-          const watch = await window.themeAPI.watchWorkshop(workshopId, data.theme, data.sub || '');
-          if (watch && watch.id) {
-            console.log(`Started watching for workshop item ${workshopId}`);
-          }
         });
 
-        declineBtn.addEventListener('click', async () => {
-          try { await window.themeAPI.markSkipWorkshop(data.theme, data.sub || ''); } catch (e) {}
-          try {
-            const dm = await window.themeAPI.disableSubWallpaper(data.theme, data.sub || '');
-            if (dm && dm.ok) { showStatusToast('Wallpaper disabled for this sub-theme'); }
-            else { showStatusToast('Preference saved (skip file). Failed to update manifest'); }
-          } catch (e) { console.warn('disableSubWallpaper failed', e); showStatusToast('Preference saved (skip file)'); }
+        changeBtn.addEventListener('click', async () => {
+          overlay.remove();
+          showToast('Custom wallpaper selection - Coming soon!', 'info');
+        });
+
+        closeBtn.addEventListener('click', () => {
           overlay.remove();
         });
+
+        // assemble UI
+        btnRow.appendChild(openBtn);
+        btnRow.appendChild(disableBtn);
+        btnRow.appendChild(changeBtn);
+        btnRow.appendChild(closeBtn);
+
+        panel.appendChild(title);
+        panel.appendChild(msg);
+        panel.appendChild(btnRow);
+
+        overlay.appendChild(panel);
+        document.body.appendChild(overlay);
       }
     } catch (e) { console.warn('theme-handshake handler err', e); }
   });
 }
 
-function showStatusToast(text, timeout=5000) {
-  let t = document.getElementById('theme-status-toast');
-  if (!t) {
-    t = document.createElement('div');
-    t.id = 'theme-status-toast';
-    t.style.position = 'fixed';
-    t.style.right = '12px';
-    t.style.bottom = '12px';
-    t.style.background = 'rgba(16,16,24,0.92)';
-    t.style.color = '#fff';
-    t.style.padding = '10px 14px';
-    t.style.borderRadius = '8px';
-    t.style.boxShadow = '0 6px 18px rgba(0,0,0,0.6)';
-    t.style.zIndex = '10000';
-    t.style.fontFamily = 'Segoe UI, system-ui, Arial';
-    t.style.fontSize = '13px';
-    document.body.appendChild(t);
-  }
-  t.textContent = text;
-  t.style.opacity = '1';
-  clearTimeout(t._hideTimer);
-  t._hideTimer = setTimeout(()=>{ try { t.style.opacity='0'; } catch(e){} }, timeout);
+// Track active toast chips
+const activeToasts = [];
+
+function showToast(text, type = 'info', duration = 4) {
+  const chip = document.createElement('div');
+  chip.className = `msg-chip msg-${type}`;
+  chip.textContent = text;
+
+  // Base styling
+  const baseStyle = {
+    position: 'fixed',
+    right: '20px',
+    padding: '10px 15px',
+    borderRadius: '6px',
+    color: '#fff',
+    fontFamily: 'Inter, Segoe UI, sans-serif',
+    fontSize: '14px',
+    boxShadow: '0 2px 10px rgba(0,0,0,0.25)',
+    zIndex: '99999',
+    opacity: '0',
+    transition: 'opacity 0.25s ease, transform 0.25s ease',
+    transform: 'translateY(10px)'
+  };
+
+  // Type-specific colors
+  const typeStyles = {
+    error: { backgroundColor: 'rgba(220,53,69,0.95)' },
+    warn: { backgroundColor: 'rgba(255,193,7,0.95)', color: '#222' },
+    warning: { backgroundColor: 'rgba(255,193,7,0.95)', color: '#222' },
+    success: { backgroundColor: 'rgba(40,167,69,0.95)' },
+    info: { backgroundColor: 'rgba(23,162,184,0.95)' },
+    debug: { backgroundColor: 'rgba(108,117,125,0.95)' }
+  };
+
+  Object.assign(chip.style, baseStyle, typeStyles[type] || typeStyles.info);
+
+  // Compute vertical offset based on existing toasts
+  const spacing = 10;
+  let bottomOffset = 20;
+  activeToasts.forEach(c => {
+    bottomOffset += c.offsetHeight + spacing;
+  });
+  chip.style.bottom = bottomOffset + 'px';
+
+  document.body.appendChild(chip);
+  activeToasts.push(chip);
+
+  // Fade in
+  requestAnimationFrame(() => {
+    chip.style.opacity = '1';
+    chip.style.transform = 'translateY(0)';
+  });
+
+  // Fade out and remove
+  setTimeout(() => {
+    chip.style.opacity = '0';
+    chip.style.transform = 'translateY(10px)';
+    chip.addEventListener('transitionend', () => {
+      chip.remove();
+      const index = activeToasts.indexOf(chip);
+      if (index !== -1) activeToasts.splice(index, 1);
+      // Adjust positions of remaining toasts
+      let offset = 20;
+      activeToasts.forEach(c => {
+        c.style.bottom = offset + 'px';
+        offset += c.offsetHeight + spacing;
+      });
+    });
+  }, duration * 1000);
 }
 
 // Handle settings-missing signal to prompt user to configure WE paths
@@ -538,7 +590,7 @@ if (window.themeEvents && typeof window.themeEvents.onSettingsMissing === 'funct
   if (!proceed) return;
   // simple flow: ask user to select Steam "steamapps" folder
   const folder = await window.themeAPI.selectFolder();
-  if (!folder) return alert('No folder selected');
+  if (!folder) return showToast('No folder selected', 'warn');
   // Expect user to select the parent folder that contains \steamapps
   // Build settings assuming user selected either the steamapps folder or the Steam library root
   const settings = {};
@@ -551,7 +603,7 @@ if (window.themeEvents && typeof window.themeEvents.onSettingsMissing === 'funct
     settings.WE_Exe = pathJoin(folder, 'steamapps', 'common', 'wallpaper_engine', 'wallpaper64.exe');
   }
   await window.themeAPI.setSettings(settings);
-  alert('Settings saved. If Wallpaper Engine files are present the selector will now detect them.');
+  showToast('Settings saved. If Wallpaper Engine files are present the selector will now detect them.', 'success');
 });
 }
 
@@ -563,10 +615,10 @@ if (cycleBtn) {
   cycleBtn.addEventListener('click', () => {
     window.themeAPI.cycleTheme()
       .then(out => {
-        alert('Cycled theme\n' + (out || ''));
+        showToast('Cycled theme\n' + (out || ''), 'success');
       })
       .catch(err => {
-        alert('Failed to cycle theme: ' + err);
+        showToast('Failed to cycle theme: ' + err, 'error');
       });
   });
 }
@@ -575,7 +627,7 @@ if (cycleBtn) {
 if (applyBtn) {
   applyBtn.addEventListener('click', () => {
     if (!selectedTheme) {
-      alert('No theme selected');
+      showToast('No theme selected', 'warn');
       return;
     }
     applyTheme(selectedTheme);

@@ -50,5 +50,6 @@
   "wallpaper-engine": {
     "file": "$subTheme/wallpaper/project.json",
     "link": "https://steamcommunity.com/sharedfiles/filedetails/?id=3163333989"
-  }
+  },
+  "skip-provided-wallpaper": false
 }

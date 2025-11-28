@@ -268,9 +268,32 @@ function Set-StatusTheme($themeName, $subName) {
         if (-not (Test-Path $userStateDir)) { New-Item -Path $userStateDir -ItemType Directory -Force | Out-Null }
         $skipFile = Join-Path $userStateDir "$themeName---$subName---skip-workshop.txt"
 
+        # Check if wallpaper is disabled in manifest
+        $wallpaperDisabled = $false
+        if ($manifest -and $manifest.'wallpaper-engine' -and ($manifest.'wallpaper-engine'.enabled -eq $false)) {
+          $wallpaperDisabled = $true
+        }
+        # Also check old property for backwards compatibility
+        if ($manifest -and $manifest.'skip-provided-wallpaper') {
+          $wallpaperDisabled = $true
+        }
+
+        # If wallpaper is enabled in manifest but skip file exists, delete the skip file (user manually re-enabled)
+        if (-not $wallpaperDisabled -and (Test-Path $skipFile)) {
+          Remove-Item $skipFile -Force -ErrorAction SilentlyContinue
+          Write-Output "theme:wallpaper: Removed skip file (wallpaper re-enabled in manifest)"
+        }
+
         if (-not $workshopFound) {
-          if ($manifest -and $manifest.'skip-provided-wallpaper') {
+          if ($wallpaperDisabled) {
             Write-Output "theme:wallpaper: SKIP (user disabled provided wallpaper)"
+            # Close any active Wallpaper Engine wallpapers
+            if (Test-Path $wpeExe) {
+              try {
+                $args = @('-control', 'closeWallpaper')
+                Start-Process -FilePath $wpeExe -ArgumentList $args -NoNewWindow -Wait -PassThru -ErrorAction SilentlyContinue | Out-Null
+              } catch { }
+            }
           }
           elseif (Test-Path $skipFile) {
             Write-Output "theme:wallpaper: SKIP (user skipped)"
@@ -296,7 +319,7 @@ function Set-StatusTheme($themeName, $subName) {
               
               # Write workshop data to a file for Electron to read
               $promptFile = Join-Path $root "workshop-prompt.json"
-              $json | Out-File -FilePath $promptFile -Encoding UTF8 -Force
+              Set-Content -Path $promptFile -Value $json -Encoding UTF8 -Force
               
               # Check if Electron app is already running by looking for the process
               $electronProcs = Get-Process electron -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -like "*theme*" -or $_.MainWindowTitle -eq "Default Enhanced" }
@@ -307,35 +330,20 @@ function Set-StatusTheme($themeName, $subName) {
               } else {
                 Write-Host "    Launching theme selector to download wallpaper..." -ForegroundColor Cyan
                 
-                # Launch Electron app hidden (no new window flash)
+                # Launch Electron app via npm start
                 $selectorPath = Join-Path $root "selector-app"
-                $electronExe = Join-Path $selectorPath "node_modules\electron\dist\electron.exe"
                 
-                if (-not (Test-Path $electronExe)) {
-                  $electronExe = Join-Path $selectorPath "node_modules\.bin\electron.cmd"
-                }
-                
-                if (Test-Path $electronExe) {
-                  $mainJs = Join-Path $selectorPath "main.js"
-                  
-                  try {
-                    # Use WindowStyle Hidden to prevent CMD window
-                    $psi = New-Object System.Diagnostics.ProcessStartInfo
-                    $psi.FileName = $electronExe
-                    $psi.Arguments = "`"$mainJs`""
-                    $psi.WorkingDirectory = $selectorPath
-                    $psi.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Hidden
-                    $psi.CreateNoWindow = $true
-                    [System.Diagnostics.Process]::Start($psi) | Out-Null
+                try {
+                  # Use Start-Process to launch npm start in the background
+                  Start-Process -FilePath "powershell" `
+                    -ArgumentList "-NoProfile", "-Command", "npm --prefix `"$selectorPath`" start" `
+                    -WindowStyle Hidden `
+                    -WorkingDirectory $selectorPath
                     
-                    Write-Host "    Theme selector opened. Please follow the prompt." -ForegroundColor Green
-                  } catch {
-                    Write-Warning "Failed to launch theme selector: $_"
-                    if (Test-Path $promptFile) { Remove-Item $promptFile -Force }
-                  }
-                } else {
+                  Write-Host "    Theme selector opened. Please follow the prompt." -ForegroundColor Green
+                } catch {
+                  Write-Warning "Failed to launch theme selector: $_"
                   if (Test-Path $promptFile) { Remove-Item $promptFile -Force }
-                  Write-Warning "Electron not found in $selectorPath"
                 }
               }
             }
@@ -343,8 +351,15 @@ function Set-StatusTheme($themeName, $subName) {
         }
         else {
           # workshop item present — find a JSON project file to open
-          if ($manifest -and $manifest.'skip-provided-wallpaper') {
+          if ($wallpaperDisabled) {
             Write-Output "theme:wallpaper: SKIP (user disabled provided wallpaper)"
+            # Close any active Wallpaper Engine wallpapers
+            if (Test-Path $wpeExe) {
+              try {
+                $args = @('-control', 'closeWallpaper')
+                Start-Process -FilePath $wpeExe -ArgumentList $args -NoNewWindow -Wait -PassThru -ErrorAction SilentlyContinue | Out-Null
+              } catch { }
+            }
           }
           else {
             $projectJson = Get-ChildItem -Path $weWorkshopFolder -Filter '*.json' -Recurse -File -ErrorAction SilentlyContinue | Select-Object -First 1
