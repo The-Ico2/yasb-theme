@@ -661,3 +661,115 @@ function showDebugBanner(text) {
     b._hideTimer = setTimeout(()=>{ try { b.textContent = ''; } catch(e){} }, 15000);
   } catch (e) { console.warn('showDebugBanner error', e); }
 }
+
+// ===== TAB NAVIGATION =====
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tabName = btn.dataset.tab;
+    
+    // Update active tab button
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    // Update active tab content
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById(`${tabName}-tab`).classList.add('active');
+    
+    // Load editor content when switching to editor tab
+    if (tabName === 'editor') {
+      loadEditorContent();
+    }
+  });
+});
+
+// ===== EDITOR TAB FUNCTIONALITY =====
+async function loadEditorContent() {
+  const editorContent = document.getElementById('editor-content');
+  if (!editorContent) return;
+  
+  try {
+    // Get all themes
+    const loaded = await window.themeAPIAsync.getThemes();
+    if (!loaded || loaded.error) {
+      editorContent.innerHTML = '<p style="color: #ff6b6b;">Error loading themes</p>';
+      return;
+    }
+    
+    const themeNames = Object.keys(loaded);
+    let html = '';
+    
+    for (const themeName of themeNames) {
+      const theme = loaded[themeName];
+      if (!theme.subs || theme.subs.length === 0) continue;
+      
+      html += `
+        <div class="editor-section">
+          <h3>${theme.meta?.name || themeName}</h3>
+      `;
+      
+      for (const sub of theme.subs) {
+        const hasWallpaper = sub.manifest && sub.manifest['wallpaper-engine'];
+        if (!hasWallpaper) continue;
+        
+        const wallpaperEnabled = sub.manifest['wallpaper-engine'].enabled !== false;
+        const statusClass = wallpaperEnabled ? 'enabled' : 'disabled';
+        const statusText = wallpaperEnabled ? 'Wallpaper Enabled' : 'Wallpaper Disabled';
+        
+        html += `
+          <div class="sub-theme-item" data-theme="${themeName}" data-sub="${sub.name}">
+            <div class="sub-theme-info">
+              <div class="sub-theme-name">${sub.meta?.name || sub.name}</div>
+              <div class="sub-theme-status ${statusClass}">${statusText}</div>
+            </div>
+            <div class="sub-theme-actions">
+              ${wallpaperEnabled 
+                ? `<button class="action-btn danger" onclick="disableWallpaper('${themeName}', '${sub.name}')">Disable Wallpaper</button>`
+                : `<button class="action-btn primary" onclick="enableWallpaper('${themeName}', '${sub.name}')">Re-enable Wallpaper</button>`
+              }
+            </div>
+          </div>
+        `;
+      }
+      
+      html += '</div>';
+    }
+    
+    if (!html) {
+      html = '<p style="color: #9aa0c0; text-align: center; padding: 40px;">No themes with wallpapers found</p>';
+    }
+    
+    editorContent.innerHTML = html;
+  } catch (e) {
+    console.error('Error loading editor content:', e);
+    editorContent.innerHTML = '<p style="color: #ff6b6b;">Error loading editor content</p>';
+  }
+}
+
+// Global functions for button onclick handlers
+window.enableWallpaper = async function(theme, sub) {
+  try {
+    const result = await window.themeAPI.enableSubWallpaper(theme, sub);
+    if (result && result.ok) {
+      showToast(`Wallpaper re-enabled for ${sub}`, 'success');
+      loadEditorContent(); // Reload to update UI
+    } else {
+      showToast(`Failed to re-enable: ${result?.error || 'unknown error'}`, 'error');
+    }
+  } catch (e) {
+    showToast(`Error: ${e.message}`, 'error');
+  }
+};
+
+window.disableWallpaper = async function(theme, sub) {
+  try {
+    const result = await window.themeAPI.disableSubWallpaper(theme, sub);
+    if (result && result.ok) {
+      showToast(`Wallpaper disabled for ${sub}`, 'success');
+      loadEditorContent(); // Reload to update UI
+    } else {
+      showToast(`Failed to disable: ${result?.error || 'unknown error'}`, 'error');
+    }
+  } catch (e) {
+    showToast(`Error: ${e.message}`, 'error');
+  }
+};

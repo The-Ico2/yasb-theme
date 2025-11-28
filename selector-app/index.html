@@ -199,9 +199,44 @@
   </style>
 </head>
 <body>
-  <h1>YASB Theme Manager</h1>
-  <div id="theme-grid"></div>
-  <div id="preview-container" style="margin-top:14px"></div>
+  <!-- Tab Navigation -->
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="library">Library</button>
+    <button class="tab-btn" data-tab="editor">Editor</button>
+    <button class="tab-btn" data-tab="discover">Discover</button>
+  </div>
+
+  <!-- Library Tab -->
+  <div id="library-tab" class="tab-content active">
+    <div style="padding: 20px;">
+      <h1>YASB Theme Manager</h1>
+      <div id="theme-grid"></div>
+      <div id="preview-container" style="margin-top:14px"></div>
+    </div>
+  </div>
+
+  <!-- Editor Tab -->
+  <div id="editor-tab" class="tab-content">
+    <div class="editor-container">
+      <div class="editor-header">
+        <h2>Theme Editor</h2>
+        <div class="editor-subtext">Manage wallpaper settings for your installed themes</div>
+      </div>
+      <div id="editor-content">
+        <!-- Will be populated by renderer.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Discover Tab -->
+  <div id="discover-tab" class="tab-content">
+    <div style="padding: 20px;">
+      <h1>Discover Themes</h1>
+      <p style="color: #9aa0c0;">Browse and download new themes from the community.</p>
+      <!-- Coming soon -->
+    </div>
+  </div>
+
   <script>console.log('selector index.html loaded (inline)');</script>
   <script src="./renderer.js"></script>
 </body>
