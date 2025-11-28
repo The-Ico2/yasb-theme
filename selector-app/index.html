@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>YASB Theme Selector</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #121212; color: #eee; }
+    h1 { font-size: 24px; }
+    .controls { margin-bottom:12px; }
+    .controls button { margin-right:8px;padding:6px 10px; }
+
+    /* Card grid */
+    #theme-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+
+    .theme-card {
+      background: linear-gradient(180deg, rgba(30,30,46,0.9), rgba(20,20,36,0.85));
+      width: 360px;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      border: 1px solid #333;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .theme-card.selected { outline: 3px solid rgba(76,194,255,0.35); }
+
+    .thumb-wrap { position: relative; height: 160px; overflow: hidden; }
+    .thumb-bg { position: absolute; inset: 0; background-position: center; background-size: cover; transform: scale(2); filter: blur(12px) brightness(0.45); transition: opacity 300ms ease; }
+    .thumb-img { height: 160px; background: #111; display: block; object-fit: contain; width: 100%; position: absolute; top:0; left:0; z-index: 2; transform: translateX(0); }
+    .thumb-img.next { transform: translateX(100%); }
+    .thumb-img.slide { transition: transform 480ms cubic-bezier(.2,.8,.2,1); }
+    .thumb-overlay { position: absolute; inset: 0; z-index:1; }
+
+    .theme-card .body {
+      padding: 12px;
+      flex: 1 1 auto;
+    }
+
+    .theme-card .title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .theme-card .desc { font-size: 13px; color: #c6cbe2; margin-bottom: 8px; min-height: 34px; }
+
+    .tag-pill { display: inline-block; padding: 4px 8px; margin-right:6px; margin-bottom:6px; background: rgba(255,255,255,0.04); border-radius: 999px; font-size:12px; color:#cbd4ff; }
+
+    .meta-footer { padding: 8px 12px; border-top: 1px solid rgba(255,255,255,0.03); display:flex; align-items:center; justify-content:space-between; }
+    .meta-left { display:flex; align-items:center; gap:8px; }
+    .meta-repo { color:#9aa0c0; font-size:12px; text-decoration:underline; }
+    .version { color: #8f95a8; font-size: 12px; }
+
+    .apply-btn { background: linear-gradient(90deg, #00dfff, #bc13fe); color: #071017; border: none; padding: 6px 10px; border-radius: 6px; font-weight:700; cursor:pointer; }
+
+    .author-avatar { width:20px; height:20px; border-radius:50%; border:1px solid rgba(255,255,255,0.06); }
+    .error-badge { position:absolute; right:8px; top:8px; background:#ff4d6d; color:#fff; padding:4px 8px; border-radius:999px; font-size:11px; }
+
+    .theme-preview { max-width: 100%; margin-top: 10px; border: 1px solid #444; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Select a Theme</h1>
+  <!-- Controls moved into each theme card. Right-click the theme widget to cycle themes. -->
+  <div id="theme-grid"></div>
+  <div id="preview-container" style="margin-top:14px"></div>
+  <script src="./renderer.js"></script>
+</body>
+</html>

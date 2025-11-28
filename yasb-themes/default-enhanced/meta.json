@@ -1,0 +1,15 @@
+{
+    "name": "Default Enhanced",
+      "authors": {
+        "The-Ico2": {
+            "id": "1",
+            "github-account-link": "https://github.com/The-Ico2",
+            "github-pfp-link": "https://avatars.githubusercontent.com/u/133270897?v=4"
+        }
+      },
+      "version": "1.1.0",
+      "short-description": "Default Enhanced is an enhanced version of the default theme, featuring improved aesthetics and usability.",
+      "long-description": "Default Enhanced builds upon the classic default theme by introducing subtle enhancements to colors, contrasts, and UI elements. It aims to provide a more visually appealing and user-friendly experience while maintaining the familiar layout and structure of the original theme.",
+      "repository": "Null",
+      "tags": ["dark", "neon", "futuristic", "vibrant", "enhanced", "default", "improved", "usability", "aesthetics", "modern"]
+}

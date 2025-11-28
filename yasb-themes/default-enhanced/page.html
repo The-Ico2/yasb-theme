@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Default Enhanced</title>
+<style>
+:root {
+  --bg: #070712;
+  --bg-darker: #04040a;
+  --bg-panel: rgba(10,10,20,0.85);
+  --bg-surface: rgba(16,16,32,0.55);
+  --bg-surface-hover: rgba(255,255,255,0.10);
+  --bg-widget: rgba(18,18,34,0.65);
+  --bg-widget-hover: rgba(255,255,255,0.12);
+  --bg-widget-active: rgba(255,255,255,0.18);
+
+  --fg: #e6e6ff;
+  --muted: #9aa0c0;
+  --accent1: #bc13fe;
+  --accent2: #00dfff;
+  --accent3: #ff67c6;
+
+  --glow1: rgba(188,19,254,0.85);
+  --glow2: rgba(0,223,255,0.85);
+  --glow3: rgba(255,103,198,0.85);
+
+  --shadow-strong: 0 0 18px rgba(0,0,0,0.70);
+  --shadow-glow1: 0 0 12px var(--glow1);
+  --shadow-glow2: 0 0 12px var(--glow2);
+  --shadow-glow3: 0 0 12px var(--glow3);
+
+  --btn-hover: rgba(0,223,255,0.20);
+  --btn-active: rgba(188,19,254,0.20);
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: "Segoe UI", system-ui, Arial;
+  background: var(--bg);
+  color: var(--fg);
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Minimal, themed scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-darker);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent2);
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent3);
+}
+
+/* Top preview section */
+.top {
+  width: 100%;
+  height: auto;
+  max-height: 72vh;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-darker);
+  perspective: 1000px;
+}
+/* background behind the preview images (blurred + dimmed) */
+.top-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center center;
+  filter: blur(12px) brightness(0.45) saturate(0.95);
+  transform: scale(1.06);
+  transition: background-image 380ms ease, opacity 380ms ease, filter 380ms ease;
+  z-index: 0;
+}
+#imageContainer { position: relative; z-index: 2; width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
+.slider {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  transition: transform 650ms cubic-bezier(.22,.9,.29,1);
+  will-change: transform;
+}
+.slide {
+  flex: 0 0 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.slider img {
+  max-width: calc(100vw - 80px);
+  max-height: calc(72vh - 60px);
+  object-fit: contain;
+  display: block;
+  transition: filter 0.4s ease;
+}
+
+.controls, .nav {
+  position: absolute;
+  bottom: 12px;
+  display: flex;
+  z-index: 100;
+}
+.controls { left: 12px; }
+.nav { right: 12px; }
+
+.controls button, .nav button {
+  background: var(--bg-panel);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--fg);
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin: 0 4px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.controls button:hover, .nav button:hover {
+  background: var(--bg-widget-hover);
+  box-shadow: var(--shadow-glow2);
+}
+
+/* Dots under carousel */
+.dots {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 12px;
+  display: flex;
+  gap: 8px;
+  z-index: 100;
+}
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.dot.active {
+  background: var(--accent2);
+  box-shadow: 0 0 8px var(--glow2);
+}
+
+/* Content layout */
+.content {
+  display: flex;
+  gap: 24px;
+  padding: 20px;
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  min-height: 180px;
+  overflow: auto;
+}
+.leftcol, .rightcol { overflow: auto; }
+.leftcol { flex: 2; }
+.rightcol { flex: 1; }
+
+/* Tags and description */
+.tags { margin-bottom: 12px; }
+.tag {
+  display: inline-block;
+  padding: 6px 10px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 999px;
+  margin-right: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  transition: all 0.3s ease;
+}
+.tag:hover {
+  background: var(--bg-widget-hover);
+  color: var(--accent2);
+}
+.desc {
+  color: var(--fg);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Credits */
+.credits {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.author {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.author img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: all 0.3s ease;
+}
+.author:hover {
+  box-shadow: 0 0 12px var(--glow2);
+}
+.author a { color: var(--fg); text-decoration: none; font-weight: 500; }
+.author span { font-size: 14px; color: var(--muted); }
+
+/* Repository link */
+.repo {
+  margin-top: 12px;
+  display: inline-block;
+  padding: 6px 10px;
+  background: var(--bg-panel);
+  border-radius: 6px;
+  color: var(--accent1);
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+.repo:hover {
+  box-shadow: var(--shadow-glow1);
+}
+
+/* Return button */
+.return {
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
+  background: var(--bg-panel);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--fg);
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.return:hover {
+  background: var(--bg-widget-hover);
+  box-shadow: var(--shadow-glow1);
+}
+
+/* Subtheme cards */
+.subtheme-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--bg-widget);
+  padding: 8px;
+  border-radius: 8px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.subtheme-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-glow3);
+}
+.subtheme-card img {
+  width: 100%;
+  border-radius: 6px;
+  display: block;
+  transition: transform 0.4s ease;
+}
+.subtheme-card img:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 10px var(--glow3));
+}
+.subtheme-title { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.subtheme-version { font-size:12px; color:var(--muted); background:rgba(255,255,255,0.03); padding:2px 6px; border-radius:6px; }
+
+/* Sub-theme apply button */
+.subtheme-apply-btn {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: linear-gradient(180deg, var(--accent2), var(--accent1));
+  color: var(--bg);
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  transition: transform 160ms ease, filter 160ms ease, opacity 160ms ease;
+}
+.subtheme-apply-btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
+.subtheme-apply-btn:active { transform: translateY(0); }
+.subtheme-apply-btn[disabled] { opacity: 0.6; cursor: default; transform: none; filter: none; box-shadow: none; }
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="controls"><button id="prevBtn">◀ Prev</button></div>
+    <div class="nav"><button id="nextBtn">Next ▶</button></div>
+    <div class="top-bg" id="topBg" aria-hidden="true"></div>
+    <div id="imageContainer"><div id="slider" class="slider" aria-live="polite"></div></div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <div class="content">
+    <div class="leftcol">
+      <div class="tags" id="tags"></div>
+      <div class="desc" id="desc"></div>
+      <div id="subthemes" style="margin-top:16px"></div>
+    </div>
+    <div class="rightcol">
+      <h3>Credits & Links</h3>
+      <div class="credits" id="credits"></div>
+      <a class="repo" id="repoLink" target="_blank">Theme Repository</a>
+      <div class="info" style="margin-top:12px; font-size:13px; color:var(--muted);" id="additionalInfo"></div>
+    </div>
+  </div>
+  <button class="return" id="returnBtn">Return</button>
+
+<script>
+  (async function(){
+    const qs = new URLSearchParams(window.location.search);
+    const theme = qs.get('theme') || '';
+    if (!theme) {
+      document.body.innerText = 'No theme specified';
+      return;
+    }
+
+    const themes = await window.themeAPI.getThemes();
+    const info = themes && themes[theme] ? themes[theme] : {};
+    const previews = await window.themeAPI.getPreviewPaths(theme) || [];
+
+    function resolvePath(obj, path) {
+      if (!path) return undefined;
+      const parts = path.split('.');
+      let cur = obj;
+      for (let p of parts) {
+        if (cur === undefined || cur === null) return undefined;
+        if (/^\d+$/.test(p)) { cur = cur[Number(p)]; continue; }
+        cur = cur[p];
+      }
+      return cur;
+    }
+
+    function bindElementById(el) {
+      const id = el.id;
+      if (!id || !id.startsWith('json.')) return false;
+      const path = id.substring(5);
+
+      if (path === 'preview-images' || path === 'preview-img' || path === 'preview-imgs') {
+        el.innerHTML = '';
+        previews.forEach(src => {
+          const img = document.createElement('img');
+          img.src = src;
+          img.style.maxWidth = '100%';
+          img.style.display = 'block';
+          img.style.marginBottom = '8px';
+          el.appendChild(img);
+        });
+        return true;
+      }
+
+      const val = resolvePath(info, path);
+      if (val === undefined) { el.textContent = ''; return true; }
+
+      if (Array.isArray(val)) {
+        if (el.classList.contains('images')) {
+          el.innerHTML = '';
+          val.forEach(v => {
+            let src = v;
+            const match = previews.find(p => p.endsWith('/' + v) || p.endsWith('\\' + v) || p.includes('/' + v));
+            if (match) src = match;
+            const img = document.createElement('img'); img.src = src; img.style.maxWidth='100%'; img.style.display='block'; img.style.marginBottom='8px'; el.appendChild(img);
+          });
+        } else {
+          el.textContent = val.join(', ');
+        }
+        return true;
+      } else if (typeof val === 'object') {
+        el.textContent = JSON.stringify(val, null, 2);
+        return true;
+      } else {
+        el.textContent = String(val);
+        return true;
+      }
+    }
+
+    function processMustaches(node) {
+      const mustacheRegex = /{{\s*json\.([^}\s]+)\s*}}/g;
+      const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, null);
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach(n => {
+        if (n.nodeType === Node.TEXT_NODE) {
+          const newText = n.textContent.replace(mustacheRegex, (_, path) => {
+            const val = resolvePath(info, path);
+            if (val === undefined) return '';
+            if (Array.isArray(val)) return val.join(', ');
+            if (typeof val === 'object') return JSON.stringify(val);
+            return String(val);
+          });
+          if (newText !== n.textContent) n.textContent = newText;
+        } else if (n.nodeType === Node.ELEMENT_NODE) {
+          const html = n.innerHTML;
+          if (mustacheRegex.test(html)) {
+            n.innerHTML = html.replace(mustacheRegex, (_, path) => {
+              const v = resolvePath(info, path);
+              return v === undefined ? '' : (Array.isArray(v) ? v.join(', ') : (typeof v === 'object' ? JSON.stringify(v) : String(v)));
+            });
+          }
+        }
+      });
+    }
+
+    document.querySelectorAll('[id^="json."]').forEach(el => bindElementById(el));
+    processMustaches(document.body);
+
+    // --- Gallery ---
+    const slider = document.getElementById('slider');
+    const dots = document.getElementById('dots');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const returnBtn = document.getElementById('returnBtn');
+
+    const tagsEl = document.getElementById('tags');
+    const descEl = document.getElementById('desc');
+    const creditsEl = document.getElementById('credits');
+    const repoEl = document.getElementById('repoLink');
+    const infoEl = document.getElementById('additionalInfo');
+    const topBg = document.getElementById('topBg');
+
+    // populate meta
+    if(tagsEl && info.meta?.tags) info.meta.tags.forEach(t=>{ const s=document.createElement('span'); s.className='tag'; s.textContent=t; tagsEl.appendChild(s); });
+    if(descEl && info.meta?.['long-description']) descEl.textContent=info.meta['long-description'];
+    if(infoEl) infoEl.textContent=`Version: ${info.meta?.version||'N/A'} • ${info.meta?.['short-description']||''}`;
+
+    // authors with profile pictures
+    if(creditsEl && info.meta?.authors){
+      for(const [name,a] of Object.entries(info.meta.authors)){
+        const div=document.createElement('div'); div.className='author';
+        const img=document.createElement('img'); img.src=a['github-pfp-link']||''; img.alt=name;
+        const link=document.createElement('a'); link.href=a['github-account-link']||'#'; link.target='_blank'; link.textContent=name;
+        div.appendChild(img); div.appendChild(link);
+        creditsEl.appendChild(div);
+      }
+    }
+
+    // repository
+    if(repoEl){
+      if(info.meta?.repository && info.meta.repository!=='Null') repoEl.href=info.meta.repository;
+      else repoEl.style.display='none';
+    }
+
+    // --- Sub-theme selector ---
+    const subHolder = document.getElementById('subthemes');
+    try{
+      const subs = await window.themeAPI.listSubThemes(theme)||[];
+      if(Array.isArray(subs) && subs.length>0){
+        const h=document.createElement('h3'); h.textContent='Sub-themes'; subHolder.appendChild(h);
+        const grid=document.createElement('div'); grid.style.display='flex'; grid.style.gap='12px'; grid.style.flexWrap='wrap';
+        for(const s of subs){
+          const card=document.createElement('div'); card.className='subtheme-card';
+          card.style.width='220px';
+          const titleWrap = document.createElement('div'); titleWrap.className='subtheme-title';
+          const title=document.createElement('div'); title.style.fontWeight='700'; title.style.marginBottom='6px';
+          const displayName = s.manifest?.meta?.name || s.manifest?.name || s.name;
+          title.textContent = displayName;
+          titleWrap.appendChild(title);
+          const verSpan = document.createElement('div'); verSpan.className='subtheme-version'; verSpan.textContent = s.manifest?.meta?.version || s.manifest?.version || '';
+          if (verSpan.textContent) titleWrap.appendChild(verSpan);
+          card.appendChild(titleWrap);
+          const short=document.createElement('div'); short.style.fontSize='13px'; short.style.color='var(--text-subtle)'; short.style.minHeight='36px';
+          if(s.manifest?.meta?.description) short.textContent=s.manifest.meta.description;
+          card.appendChild(short);
+          const previewBox=document.createElement('div'); previewBox.style.marginTop='8px';
+          const pimg=document.createElement('img'); pimg.style.width='100%'; pimg.style.borderRadius='6px'; previewBox.appendChild(pimg); card.appendChild(previewBox);
+          const applyBtn=document.createElement('button'); applyBtn.className='subtheme-apply-btn'; applyBtn.textContent='Enable';
+          applyBtn.addEventListener('click', async()=>{
+            applyBtn.disabled=true; applyBtn.textContent='Applying...';
+            try{
+              const res = await window.themeAPI.applyTheme(`${theme}/${s.name}`);
+              if (res?.needs_sub) alert('Selected theme requires further selection.');
+              else alert('Applied '+theme+'/'+s.name);
+            } catch (e) {
+              alert('Failed: '+e);
+            }
+            applyBtn.disabled=false; applyBtn.textContent='Enable';
+          });
+          card.appendChild(applyBtn);
+          try{ const p=await window.themeAPI.getPreviewPaths(`${theme}/${s.name}`)||[]; if(p.length) pimg.src=p[0]; else pimg.src=''; }catch(e){pimg.src='';}
+          grid.appendChild(card);
+        }
+        subHolder.appendChild(grid);
+      }
+    }catch(e){console.warn('listing sub-themes failed',e);}
+
+    // --- Gallery control ---
+    let index=0;
+    function setDots(){ dots.innerHTML=''; previews.forEach((_,i)=>{ const d=document.createElement('div'); d.className='dot'+(i===index?' active':''); d.addEventListener('click',()=>{ index=i; render(); }); dots.appendChild(d); }); }
+
+    function buildSlider(){
+      slider.innerHTML = '';
+      if (!previews || previews.length === 0) {
+        const placeholder = document.createElement('div');
+        placeholder.style.width = '100%'; placeholder.style.height = '100%';
+        placeholder.style.display = 'flex'; placeholder.style.alignItems = 'center'; placeholder.style.justifyContent = 'center';
+        placeholder.textContent = 'No preview available'; placeholder.style.color = 'var(--muted)';
+        slider.appendChild(placeholder);
+        return;
+      }
+      for (let src of previews) {
+        const slideWrap = document.createElement('div');
+        slideWrap.className = 'slide';
+        const img = document.createElement('img');
+        img.alt = 'preview';
+        // attach a graceful fallback if image fails to load
+        img.onerror = function(){
+          try{
+            this.onerror = null;
+            this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450"><rect width="100%" height="100%" fill="%23070712"/><text x="50%" y="50%" fill="%239aa0c0" font-size="20" text-anchor="middle" dy=".3em">Preview unavailable</text></svg>';
+          }catch(e){}
+        };
+        // preload image in background
+        try { const p = new Image(); p.src = src; } catch(e){}
+        img.src = src;
+        slideWrap.appendChild(img);
+        slider.appendChild(slideWrap);
+      }
+      // ensure correct initial translate
+      slider.style.transform = `translateX(-${index * 100}%)`;
+    }
+
+    function render(){
+      if (!previews || previews.length === 0) { setDots(); return; }
+      // clamp index
+      index = ((index % previews.length) + previews.length) % previews.length;
+      slider.style.transform = `translateX(-${index * 100}%)`;
+      // update blurred background to match current preview
+      try {
+        if (topBg && previews[index]) {
+          const url = String(previews[index]).replace(/"/g, '\\"');
+          topBg.style.backgroundImage = 'url("' + url + '")';
+          topBg.style.opacity = '1';
+        } else if (topBg) {
+          topBg.style.backgroundImage = '';
+          topBg.style.opacity = '0';
+        }
+      } catch (e) { /* ignore background update errors */ }
+      setDots();
+    }
+
+    let baseInterval=5000, extendedInterval=25000, currentInterval=baseInterval, timer=null;
+    const startTimer=()=>{ if(timer) clearTimeout(timer); timer=setTimeout(()=>{ next(); if(currentInterval===extendedInterval) currentInterval=baseInterval; startTimer(); },currentInterval); };
+    const stopTimer=()=>{ if(timer) clearTimeout(timer); timer=null; };
+    function next(){ index=(index+1)%Math.max(1,previews.length); render(); }
+    function prev(){ index=(index-1+Math.max(1,previews.length))%Math.max(1,previews.length); render(); }
+    function manualGoto(i){ index=i; render(); currentInterval=extendedInterval; startTimer(); }
+
+    nextBtn.addEventListener('click',()=>{ next(); currentInterval=extendedInterval; startTimer(); });
+    prevBtn.addEventListener('click',()=>{ prev(); currentInterval=extendedInterval; startTimer(); });
+    returnBtn.addEventListener('click', async()=>{
+      try{
+        const res = await window.themeWindow.showSelector();
+        if (res && res.ok) {
+          // selector reloaded in-place
+          return;
+        }
+        // if showSelector returned an error, warn but do not close the window
+        console.warn('showSelector returned error', res && res.error);
+        alert('Could not return to selector: ' + (res && res.error ? res.error : 'unknown error'));
+      } catch (e) {
+        console.warn('showSelector exception', e);
+        alert('Could not return to selector: ' + e.message);
+      }
+    });
+
+    // build slider DOM and render initial state
+    buildSlider();
+    render();
+    // keyboard navigation (left/right)
+    window.addEventListener('keydown', (ev)=>{
+      if (ev.key === 'ArrowLeft') { prev(); ev.preventDefault(); }
+      else if (ev.key === 'ArrowRight') { next(); ev.preventDefault(); }
+    });
+
+    if(previews.length>1) startTimer();
+
+    // --- Animated neon particles background ---
+    const canvas=document.createElement('canvas'); canvas.style.position='fixed'; canvas.style.top='0'; canvas.style.left='0'; canvas.style.width='100%'; canvas.style.height='100%'; canvas.style.zIndex='-1'; document.body.appendChild(canvas);
+    const ctx=canvas.getContext('2d'); let W=canvas.width=window.innerWidth,H=canvas.height=window.innerHeight;
+    window.addEventListener('resize',()=>{ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; });
+    const particles=[]; for(let i=0;i<80;i++){ particles.push({x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.5+0.5, dx:(Math.random()-0.5)*0.3, dy:(Math.random()-0.5)*0.3, color:['#bc13fe','#00dfff','#ff67c6'][Math.floor(Math.random()*3)]}); }
+    function animate(){
+      ctx.clearRect(0,0,W,H);
+      particles.forEach(p=>{
+        p.x+=p.dx; p.y+=p.dy;
+        if(p.x<0||p.x>W)p.dx*=-1; if(p.y<0||p.y>H)p.dy*=-1;
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle=p.color; ctx.globalAlpha=0.25; ctx.fill(); ctx.globalAlpha=1;
+      });
+      requestAnimationFrame(animate);
+    }
+    animate();
+})();
+
+</script>
+</body>
+</html>

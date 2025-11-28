@@ -1,0 +1,9 @@
+{
+  "name": "theme-root",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Root helper package that proxies scripts to subpackages.",
+  "scripts": {
+    "start": "npm --prefix ./selector-app run start"
+  }
+}

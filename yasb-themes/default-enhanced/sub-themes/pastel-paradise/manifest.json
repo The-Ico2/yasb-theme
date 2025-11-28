@@ -1,0 +1,51 @@
+{
+  "meta": {
+    "name": "Pastel Paradise",
+    "version": "1.0.0"
+  },
+  "root-variables": {
+    "--accent1": "#e0aaff",
+    "--accent2": "#aafff4",
+    "--accent3": "#ffb3e6",
+
+    "--glow1": "rgba(224, 170, 255, 0.85)",
+    "--glow2": "rgba(170, 255, 244, 0.85)",
+    "--glow3": "rgba(255, 179, 230, 0.85)",
+
+    "--glow1-soft": "rgba(224, 170, 255, 0.20)",
+    "--glow2-soft": "rgba(170, 255, 244, 0.20)",
+    "--glow3-soft": "rgba(255, 179, 230, 0.20)",
+
+    "--bg-dark": "#1a1a2e",
+    "--bg-darker": "#12122b",
+    "--bg-panel": "rgba(26, 26, 46, 0.85)",
+    "--bg-surface": "rgba(30, 30, 55, 0.55)",
+    "--bg-surface-hover": "rgba(255,255,255,0.08)",
+
+    "--bg-widget": "rgba(30, 30, 55, 0.65)",
+    "--bg-widget-hover": "rgba(255,255,255,0.10)",
+    "--bg-widget-active": "rgba(255,255,255,0.15)",
+
+    "--text-main": "#f0f0f8",
+    "--text-subtle": "#b0b0c8",
+    "--text-accent1": "#e0aaff",
+    "--text-accent2": "#aafff4",
+    "--text-accent3": "#ffb3e6",
+
+    "--border-soft": "rgba(255,255,255,0.06)",
+    "--border-strong": "rgba(255,255,255,0.12)",
+
+    "--shadow-strong": "0px 0px 18px rgba(0, 0, 0, 0.65)",
+    "--shadow-glow1": "0px 0px 12px rgba(224, 170, 255, 0.85)",
+    "--shadow-glow2": "0px 0px 12px rgba(170, 255, 244, 0.85)",
+    "--shadow-glow3": "0px 0px 12px rgba(255, 179, 230, 0.85)",
+
+    "--glass-1": "rgba(255, 255, 255, 0.06)",
+    "--glass-2": "rgba(255, 255, 255, 0.10)",
+    "--glass-3": "rgba(255, 255, 255, 0.15)",
+
+    "--btn-hover": "rgba(170, 255, 244, 0.20)",
+    "--btn-active": "rgba(224, 170, 255, 0.20)"
+  },
+  "wallpaper-engine": {}
+}

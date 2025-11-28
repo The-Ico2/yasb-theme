@@ -1,0 +1,622 @@
+watch_stylesheet: true
+watch_config: true
+debug: false
+update_check: true
+
+komorebi:
+  start_command: "komorebic start --whkd"
+  stop_command: "komorebic stop --whkd"
+  reload_command: "komorebic stop --whkd && komorebic start --whkd"
+
+bars:
+  primary-bar:
+    enabled: true
+    screens: ["primary"]
+    class_name: "yasb-bar"
+    alignment:
+      position: "top"
+      center: false
+    animation:
+      enabled: true
+      duration: 400
+    blur_effect:
+      enabled: true
+      acrylic: false
+      dark_mode: true
+      round_corners: true
+      round_corners_type: "normal"
+      border_color: "None"
+    window_flags:
+      always_on_top: false
+      windows_app_bar: true
+    dimensions:
+      width: "100%"
+      height: 34
+    padding:
+      top: 4
+      left: 4
+      bottom: 4
+      right: 4
+    widgets:
+      left:
+        - "home"
+        - "komorebi_workspaces"
+        - "active_window"
+      center:
+        - "audio"
+        - "apps"
+      right:
+        - "systray"
+        - "sysinfo"
+        - "clock"
+        - "notifications"
+        - "theme_switcher"
+        - "bluetooth"
+        - "wifi"
+        - "battery"
+        - "power_menu"
+  other-bar:
+    enabled: true
+    screens: ["*"]
+    class_name: "yasb-bar"
+    alignment:
+      position: "top"
+      center: false
+    animation:
+      enabled: true
+      duration: 400
+    blur_effect:
+      enabled: true
+      acrylic: false
+      dark_mode: true
+      round_corners: true
+      round_corners_type: "normal"
+      border_color: "None"
+    window_flags:
+      always_on_top: false
+      windows_app_bar: true
+    dimensions:
+      width: "100%"
+      height: 34
+    padding:
+      top: 4
+      left: 4
+      bottom: 4
+      right: 4
+    widgets:
+      left:
+        - "home"
+        - "komorebi_workspaces"
+        - "active_window"
+      center:
+        - "audio"
+        - "apps"
+      right:
+        - "clock"
+widgets:
+  bluetooth:
+    type: "yasb.bluetooth.BluetoothWidget"
+    options:
+      label: "<span>{icon}</span> {device_count}"
+      label_alt: "{device_name}"
+      label_no_device: "No devices connected"
+      label_device_separator: ", "
+      max_length: 10
+      max_length_ellipsis: "..."
+      icons: 
+        bluetooth_on: "\udb80\udcaf"
+        bluetooth_off: "\udb80\udcb2"
+        bluetooth_connected: "\udb80\udcb1"
+      device_aliases:
+        - name: "T5.0"
+          alias: "\uf025"
+      callbacks:
+        on_middle: "toggle_label"
+        on_right: "exec cmd.exe /c start ms-settings:bluetooth"
+      label_shadow:
+        enabled: true
+        color: "black"
+        radius: 3
+        offset: [ 1, 1 ]
+  systray:
+    type: "yasb.systray.SystrayWidget"
+    options:
+      class_name: "systray"
+      label_collapsed: "\uf47d"
+      label_expanded: "\uf460"
+      label_position: "right"
+      icon_size: 16
+      pin_click_modifier: "alt"
+      show_unpinned: false
+      show_unpinned_button: true
+      show_battery: false
+      show_volume: false
+      show_network: false
+      tooltip: true
+  home:
+    type: "yasb.home.HomeWidget"
+    options:
+      label: "<span>\uf192</span>"
+      menu_list:
+      - { title: "Ico", path: "~" }
+      - { title: "Download", path: "~\\Downloads" }
+      - { title: "Documents", path: "~\\Documents" }
+      - { title: "Pictures", path: "~\\Pictures" }
+      system_menu: true
+      power_menu: true
+      blur: true
+      border_color: "None"
+      container_padding:
+        top: 0
+        left: 6
+        bottom: 0
+        right: 4
+  clock:
+    type: "yasb.clock.ClockWidget"
+    options:
+      label: "{%H:%M:%S}"
+      label_alt: "{%A, %B %d %Y %H:%M}"
+      timezones: []
+      calendar: 
+        blur: true
+        round_corners: true
+        round_corners_type: "normal"
+        border_color: "None"
+        alignment: "center"
+        direction: "down"
+      callbacks:
+        on_left: "toggle_calendar"
+        on_middle: "toggle_label"
+  komorebi_workspaces:
+    type: "komorebi.workspaces.WorkspaceWidget"
+    options:
+      label_offline: "\u23fc Offline"
+      label_workspace_btn: "\udb80\udd30"
+      label_workspace_active_btn: "\udb80\udd2f"
+      label_workspace_populated_btn: "\udb80\udd30"
+      label_default_name: "{index}"
+      label_zero_index: false
+      hide_empty_workspaces: false
+      hide_if_offline: true
+      animation: false
+  
+  power_menu:
+    type: "yasb.power_menu.PowerMenuWidget"
+    options:
+      label: "\uf011"
+      uptime: true
+      blur: false
+      blur_background: true
+      animation_duration: 200
+      button_row: 3
+      buttons:
+        shutdown: ["\uf011", "Shut Down"]
+        restart: ["\uead2", "Restart"]
+        signout: ["\udb80\udf43", "Sign out"]
+        hibernate: ["\uf28e", "Hibernate"]
+        sleep: ["\u23fe", "Sleep"]
+        cancel: ["\ueab8", "Close"]
+      container_padding:
+        top: 0
+        left: 0
+        bottom: 0
+        right: 6
+  apps:
+    type: "yasb.applications.ApplicationsWidget"
+    options:
+      label: "{data}"
+      app_list:
+        - {
+            name: "Task Manager", 
+            icon: "\ueb03", 
+            launch: "cmd /c Taskmgr"
+          }
+        - {
+            name: "Browser", 
+            icon: "\uf282", 
+            launch: "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+          }
+        - {
+            name: "Command Prompt", 
+            icon: "\uf489" , 
+            launch: "wt"
+          }
+      container_padding:
+        top: 0
+        left: 4
+        bottom: 0
+        right: 4
+  notifications:
+    type: "yasb.notifications.NotificationsWidget"
+    options:
+      label: "<span>\uf476</span> {count}"
+      label_alt: "{count} notifications"
+      hide_empty: false
+      tooltip: false
+      callbacks:
+        on_left: "toggle_notification"
+        on_right: "do_nothing"
+        on_middle: "toggle_label"
+      container_padding:
+        top: 0
+        left: 4
+        bottom: 0
+        right: 4
+  active_window:
+    type: "yasb.active_window.ActiveWindowWidget"
+    options:
+      label: "{win[title]}"
+      label_alt: "{win[process][name]}"
+      label_no_window: ""
+      label_icon: true
+      label_icon_size: 16
+      max_length: 20
+      max_length_ellipsis: "..."
+      monitor_exclusive: true
+  
+  # Audio Widgets
+  media:
+    type: "yasb.media.MediaWidget"
+    options:
+      label: "\uf025"
+      label_alt: "\uf025 {title}"
+      hide_empty: true
+      callbacks:
+        on_left: "toggle_media_menu"
+        on_middle: "toggle_label"
+        on_right: "toggle_play_pause"
+      max_field_size:
+        label: 16
+        label_alt: 16
+        truncate_whole_label: true
+      show_thumbnail: false
+      controls_only: false
+      controls_left: false
+      controls_hide: true
+      thumbnail_edge_fade: false
+      thumbnail_padding: 32
+      scrolling_label:
+        enabled: false
+        update_interval_ms: 50
+        style: "left"
+        separator: " "
+        label_padding: 2
+        ease_slope: 20
+        ease_pos: 0.8
+        ease_min: 0.5
+      icons:
+        prev_track: "\ue892"
+        next_track: "\ue893"
+        play: "\ue768"
+        pause: "\ue769"
+      media_menu:
+        blur: true
+        round_corners: true
+        round_corners_type: "normal"
+        border_color: "None"
+        alignment: "center"
+        direction: "down"
+        offset_top: 6
+        offset_left: 0
+        thumbnail_corner_radius: 4
+        thumbnail_size: 80
+        max_title_size: 60
+        max_artist_size: 20
+        show_source: true
+      media_menu_icons:
+        play: "\ue768"
+        pause: "\ue769"
+        prev_track: "\ue892"
+        next_track: "\ue893"
+        mute: "\ue994"
+        unmute: "\ue74f"
+  volume:
+    type: "yasb.volume.VolumeWidget"
+    options:
+      label: "<span>{icon}</span>"
+      label_alt: "<span>{icon}</span> {level}"
+      volume_icons:
+        - "\ueee8"
+        - "\uf026"
+        - "\uf027"
+        - "\uf027"
+        - "\uf028"
+      callbacks:
+        on_left: "toggle_volume_menu"
+        on_right: "toggle_mute"
+        on_middle: "toggle_label"
+      audio_menu:
+        blur: true
+        round_corners: true
+        round_corners_type: "normal"
+        border_color: "system"
+        alignment: "center"
+        direction: "down"
+        offset_top: 6
+        offset_left: 0
+        show_apps: true
+        show_app_labels: false
+        show_app_icons: true
+        show_apps_expanded: false
+      container_padding:
+        top: 0
+        left: 2
+        bottom: 0
+        right: 2
+  microphone:
+    type: "yasb.microphone.MicrophoneWidget"
+    options:
+      label: "<span>{icon}</span>"
+      label_alt: "<span>{icon}</span> {level}"
+      mute_text: "mute"
+      icons:
+        normal: "\uf130"
+        muted: "\uf131"
+      mic_menu:
+        blur: true
+        round_corners: true
+        round_corners_type: "normal"
+        border_color: "system"
+        alignment: "center"
+        direction: "down"
+      callbacks:
+        on_left: "toggle_mic_menu"
+        on_middle: "toggle_label"
+        on_right: "toggle_mute"
+      label_shadow:
+        enabled: true
+        color: "black"
+        radius: 3
+        offset: [ 1, 1 ]
+
+  # System Information Widgets
+  battery:
+    type: "yasb.battery.BatteryWidget"
+    options:
+      label: "<span>{icon}</span> {percent}%"
+      label_alt: "<span>{icon}</span> {percent}% | time: {time_remaining}"
+      update_interval: 5000
+      time_remaining_natural: False
+      hide_unsupported: True
+      charging_options:
+        icon_format: "{charging_icon}"
+        blink_charging_icon: true
+        blink_interval: 500
+      status_thresholds:
+        critical: 10
+        low: 25
+        medium: 75
+        high: 95
+        full: 100
+      status_icons:
+        icon_charging: "\uf0e7"
+        icon_critical: "\uf244"
+        icon_low: "\uf243"
+        icon_medium: "\uf242"
+        icon_high: "\uf241"
+        icon_full: "\uf240"
+      label_shadow:
+        enabled: true
+        color: "black"
+        radius: 3
+        offset: [ 1, 1 ]
+      callbacks:
+        on_right: "exec cmd.exe /c start ms-settings:batterysaver-settings"
+        on_middle: "toggle_label"
+        on_left: "do_nothing"
+  gpu:
+    type: "yasb.gpu.GpuWidget"
+    options:
+      label: "GPU"
+      label_alt: "{info[utilization]}%"
+      update_interval: 2000
+      gpu_thresholds:
+        low: 25
+        medium: 50
+        high: 90
+      progress_bar:
+          enabled: true
+          size: 14
+          thickness: 2
+          color: "#91d7e3"
+          background_color: "#242739" 
+      callbacks:
+        on_middle: "toggle_label"
+  cpu:
+      type: "yasb.cpu.CpuWidget"
+      options:
+        label: "CPU"
+        label_alt: "{info[percent][total]:.0f}%"
+        progress_bar:
+          enabled: true
+          position: "left"
+          size: 14
+          thickness: 2
+          color: "#91d7e3"
+          background_color: "#242739" 
+        update_interval: 2000
+        callbacks:
+          on_middle: "toggle_label"
+  memory:
+      type: "yasb.memory.MemoryWidget"
+      options:
+        label: "MEM"
+        label_alt: "VIRT: {virtual_mem_percent}% SWAP: {swap_mem_percent}%"
+        update_interval: 5000
+        progress_bar:
+          enabled: true
+          size: 14
+          thickness: 2
+          color: "#91d7e3"
+          background_color: "#242739" 
+        callbacks:
+          on_middle: "toggle_label"
+        memory_thresholds:
+          low: 25
+          medium: 50
+          high: 90
+  disk:
+    type: "yasb.disk.DiskWidget"
+    options:
+        label: "Disk"
+        label_alt: "{volume_label} {space[used][gb]} / {space[total][gb]}"
+        volume_label: "C"
+        update_interval: 60
+        group_label:
+          volume_labels: ["C", "D", "E", "F"]
+          show_label_name: true
+          blur: True
+          round_corners: True
+          round_corners_type: "small"
+          border_color: "System"
+          alignment: "right"
+          direction: "down"
+        callbacks:
+          on_left: "toggle_group"
+          on_middle: "toggle_label"
+          on_right: "exec explorer C:\\" # Open disk C in file explorer
+        label_shadow:
+          enabled: true
+          color: "black"
+          radius: 3
+          offset: [ 1, 1 ]
+        progress_bar:
+          enabled: true
+          size: 14
+          thickness: 2
+          color: "#91d7e3"
+          background_color: "#242739" 
+        disk_thresholds:
+            low: 25
+            medium: 50
+            high: 90
+  
+  # Other Widgets
+  cava:
+    type: "yasb.cava.CavaWidget"
+    options:
+      bar_height: 20
+      min_bar_height: 0
+      gradient: 1
+      foreground: "#89b4fa"
+      gradient_color_1: '#74c7ec'
+      gradient_color_2: '#89b4fa'
+      gradient_color_3: '#cba6f7'
+      bars_number: 10
+      bar_spacing: 1
+      bar_width: 4
+      bar_type: "bars"
+      framerate: 120
+      hide_empty: true
+  bin:
+    type: "yasb.recycle_bin.RecycleBinWidget"
+    options:
+      label: "<span>{icon}</span> Items {items_count} ({items_size})"
+      label_alt: "Items {items_count}, Total size ({items_size})"
+      icons:
+        bin_empty: "\udb82\ude7a"
+        bin_filled: "\udb82\ude79"
+      callbacks:
+        on_left: "open_bin"
+        on_right: "toggle_label"
+        on_middle: "empty_bin"
+      label_shadow:
+        enabled: true
+        color: "black"
+        radius: 3
+        offset: [ 1, 1 ]
+  wifi:
+    type: "yasb.wifi.WifiWidget"
+    options:
+      label: "<span>{wifi_icon}</span>"
+      label_alt: "{wifi_name} {wifi_strength}%"
+      update_interval: 5000
+      callbacks:
+        on_left: "toggle_menu"
+        on_middle: "toggle_label"
+        on_right: "exec cmd.exe /c start ms-settings:network"
+      ethernet_label: "<span>{wifi_icon}</span>"
+      ethernet_label_alt: "<span>{wifi_icon}</span>{ip_addr}"
+      ethernet_icon: "\ueba9"
+      get_exact_wifi_strength: false  # Optional. Will require location access permission if true.
+      wifi_icons: [
+        "\udb82\udd2e",  # Icon for 0% strength
+        "\udb82\udd1f",  # Icon for 1-24% strength
+        "\udb82\udd22",  # Icon for 25-49% strength
+        "\udb82\udd25",  # Icon for 50-74% strength
+        "\udb82\udd28"   # Icon for 75-100% strength
+      ]
+      label_shadow:
+        enabled: true
+        color: "black"
+        radius: 3
+        offset: [ 1, 1 ]
+      menu_config:
+        blur: true
+        round_corners: true
+        round_corners_type: "normal"
+        border_color: "System"
+        alignment: "right"
+        direction: "down"
+        offset_top: 6
+        offset_left: 0
+        wifi_icons_secured: [
+          "\ue670",
+          "\ue671",
+          "\ue672",
+          "\ue673",
+        ]
+        wifi_icons_unsecured: [
+          "\uec3c",
+          "\uec3d",
+          "\uec3e",
+          "\uec3f",
+        ]
+
+  theme_switcher:
+    type: "yasb.custom.CustomWidget"
+    options:
+      label: "\ue7fe"  # some icon for theme
+      label_alt: "Switch Theme"
+      class_name: "theme-switcher-widget"
+      exec_options:
+        run_cmd: 'powershell -ExecutionPolicy Bypass -File "C:\\Users\\Xande\\.config\\theme\\theme.ps1" --cycle'
+        run_interval: 0        # only run on demand
+        hide_empty: false
+      callbacks:
+        on_left: 'exec powershell -ExecutionPolicy Bypass -File "C:\\Users\\Xande\\.config\\theme\\theme.ps1" --cycle'
+        on_middle: "toggle_label"
+        on_right: 'exec npm --prefix "C:\\Users\\Xande\\.config\\theme\\selector-app" start'
+
+
+  # Grouped Widgets
+  sysinfo:
+      type: "yasb.grouper.GrouperWidget"
+      options:
+        class_name: "grouped-widgets"
+        widgets: [
+          "memory",
+          "cpu",
+          "gpu",
+          "disk"
+        ]
+        container_padding:
+          top: 0
+          left: 2
+          bottom: 0
+          right: 6
+  audio:
+    type: "yasb.grouper.GrouperWidget"
+    options:
+      class_name: "grouped-audio-widgets"
+      widgets: [
+        "cava",
+        "media",
+        "volume",
+        "microphone"
+      ]
+      container_padding:
+        top: 0
+        left: 4
+        bottom: 0
+        right: 4

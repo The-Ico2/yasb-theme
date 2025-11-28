@@ -1,0 +1,16 @@
+{
+  "name": "theme-selector",
+  "version": "1.0.0",
+  "description": "Theme / wallpaper selector for YASB + Wallpaper Engine",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "Ico2",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^39.2.4"
+  }
+}
