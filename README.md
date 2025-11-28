@@ -15,7 +15,8 @@
 5. [Quick Usage](#quick-usage)  
 6. [Theme JSON Structure](#theme-json-structure)  
 7. [Troubleshooting](#troubleshooting)  
-8. [Contributing](#contributing)  
+8. [Contributing](#contributing)
+9. [Credits](#credits)
 
 ---
 
@@ -269,3 +270,7 @@ npm --prefix "C:\Users\<username>\.config\theme\selector-app" start
 
 - Add themes manually via `yasb-themes/`
 - PRs welcome for UI improvements, scripts, or new themes.
+
+## Credits
+- [Komorebi Repo](https://github.com/LGUG2Z/komorebi)
+- [YASB Repo](https://github.com/amnweb/yasb)
