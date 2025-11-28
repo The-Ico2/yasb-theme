@@ -334,3 +334,35 @@ Tell me if you'd like that and I’ll add it to the repo.
 * Add themes manually: create a folder in `yasb-themes/` and add a `meta.json` and preview images; or add entries to `theme.json`.
 * Submit PRs for the Electron UI improvements, scripts, or new themes.
 * If you want remote theme fetching (GitHub pull), open an issue — it’s a planned future feature.
+
+---
+
+### Environment variables (Windows)
+
+Two system environment variables are used by this setup. Set them as **Machine** (system) variables so GUI apps and services inherit them.
+
+- **YASB_THEME_MANAGER**: should point to the root folder of this theme manager installation.
+  - Example value: `C:\Users\<username>\.config\yasb-theme-manager`
+- **KOMOREBI_CONFIG_HOME**: should point to your Komorebi config folder.
+  - Example value: `C:\Users\<username>\.config\komorebi`
+
+Set both variables from an elevated PowerShell prompt (Administrator):
+
+```powershell
+# Replace <username> automatically by $env:USERPROFILE
+[Environment]::SetEnvironmentVariable('YASB_THEME_MANAGER', "$env:USERPROFILE\.config\yasb-theme-manager", 'Machine')
+[Environment]::SetEnvironmentVariable('KOMOREBI_CONFIG_HOME', "$env:USERPROFILE\.config\komorebi", 'Machine')
+
+# Or using setx (also requires elevation):
+setx YASB_THEME_MANAGER "%USERPROFILE%\.config\yasb-theme-manager" /M
+setx KOMOREBI_CONFIG_HOME "%USERPROFILE%\.config\komorebi" /M
+```
+
+Verify the machine-level variables (PowerShell):
+
+```powershell
+[Environment]::GetEnvironmentVariable('YASB_THEME_MANAGER', 'Machine')
+[Environment]::GetEnvironmentVariable('KOMOREBI_CONFIG_HOME', 'Machine')
+```
+
+Important: after setting machine variables with `setx` or `[Environment]::SetEnvironmentVariable` you must **sign out and sign back in** (or reboot) so running GUI processes inherit the new values.

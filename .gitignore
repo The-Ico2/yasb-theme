@@ -4,7 +4,6 @@ selector-app/node_modules/
 
 # theme status files
 *.current_status
-*.current_status
 
 # Logs
 npm-debug.log*

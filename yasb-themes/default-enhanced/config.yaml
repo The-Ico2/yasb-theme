@@ -580,13 +580,13 @@ widgets:
       label_alt: "Switch Theme"
       class_name: "theme-switcher-widget"
       exec_options:
-        run_cmd: 'powershell -ExecutionPolicy Bypass -File "C:\\Users\\Xande\\.config\\theme\\theme.ps1" --cycle'
+        run_cmd: 'powershell -ExecutionPolicy Bypass -File "${env:YASB_THEME_MANAGER}/theme.ps1" --cycle'
         run_interval: 0        # only run on demand
         hide_empty: false
       callbacks:
-        on_left: 'exec powershell -ExecutionPolicy Bypass -File "C:\\Users\\Xande\\.config\\theme\\theme.ps1" --cycle'
+        on_left: 'exec powershell -ExecutionPolicy Bypass -File "${env:YASB_THEME_MANAGER}/theme.ps1" --cycle'
         on_middle: "toggle_label"
-        on_right: 'exec npm --prefix "C:\\Users\\Xande\\.config\\theme\\selector-app" start'
+        on_right: 'exec npm.cmd --prefix "${env:YASB_THEME_MANAGER}/selector-app" start'
 
 
   # Grouped Widgets
