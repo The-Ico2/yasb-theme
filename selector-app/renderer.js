@@ -1326,25 +1326,36 @@ function renderWidgetList() {
       const positions = ['left', 'center', 'right'];
       for (const pos of positions) {
         const widgets = bar.widgets[pos] || [];
-        if (widgets.length === 0) continue;
         
-        // Add section divider
+        // Add section divider with add button (show even if empty)
         barContentHtml += `
-          <div class="widget-section-divider">${pos}</div>
+          <div class="widget-section-divider">
+            <span>${pos}</span>
+            <button class="widget-btn" onclick="addWidget('${bar.name}', '${pos}')" title="Add widget" style="background: var(--accent2); margin-left: auto;">+</button>
+          </div>
         `;
         
         // Add widgets for this position
-        for (let i = 0; i < widgets.length; i++) {
-          const widgetName = widgets[i];
-          barContentHtml += `
-            <div class="widget-item" draggable="true">
-              <span class="widget-drag-handle">⋮⋮</span>
-              <span class="widget-name">${widgetName}</span>
-              <div class="widget-actions">
-                <button class="widget-btn" onclick="moveWidgetUp('${bar.name}', '${pos}', ${i})" title="Move up">▲</button>
-                <button class="widget-btn" onclick="moveWidgetDown('${bar.name}', '${pos}', ${i})" title="Move down">▼</button>
-                <button class="widget-btn" onclick="removeWidget('${bar.name}', '${pos}', ${i})" title="Remove">✕</button>
+        if (widgets.length > 0) {
+          for (let i = 0; i < widgets.length; i++) {
+            const widgetName = widgets[i];
+            barContentHtml += `
+              <div class="widget-item" draggable="true">
+                <span class="widget-drag-handle">⋮⋮</span>
+                <span class="widget-name">${widgetName}</span>
+                <div class="widget-actions">
+                  <button class="widget-btn" onclick="moveWidgetUp('${bar.name}', '${pos}', ${i})" title="Move up">▲</button>
+                  <button class="widget-btn" onclick="moveWidgetDown('${bar.name}', '${pos}', ${i})" title="Move down">▼</button>
+                  <button class="widget-btn" onclick="removeWidget('${bar.name}', '${pos}', ${i})" title="Remove">✕</button>
+                </div>
               </div>
+            `;
+          }
+        } else {
+          // Show placeholder for empty position
+          barContentHtml += `
+            <div style="color: #6b6f85; font-size: 12px; padding: 8px 12px; text-align: center;">
+              No widgets - click + to add
             </div>
           `;
         }
@@ -1392,17 +1403,279 @@ window.switchWidgetBar = function(index) {
 
 // Widget management functions
 window.moveWidgetUp = function(barName, position, index) {
-  // TODO: Implement widget position change
-  showToast('Widget reordering coming soon', 'info');
+  if (!editorState.config || index <= 0) return;
+  
+  const bars = parseConfigBars();
+  const bar = bars.find(b => b.name === barName);
+  if (!bar || !bar.widgets[position]) return;
+  
+  const widgets = bar.widgets[position];
+  if (index >= widgets.length) return;
+  
+  // Swap with previous widget
+  [widgets[index - 1], widgets[index]] = [widgets[index], widgets[index - 1]];
+  
+  // Update config string
+  updateConfigWithBars(bars);
+  
+  // Re-render
+  renderEditor();
+  showToast('Widget moved up', 'success', 2);
 };
 
-window.moveWidgetRight = function(index) {
-  showToast('Widget reordering coming soon', 'info');
+window.moveWidgetDown = function(barName, position, index) {
+  if (!editorState.config) return;
+  
+  const bars = parseConfigBars();
+  const bar = bars.find(b => b.name === barName);
+  if (!bar || !bar.widgets[position]) return;
+  
+  const widgets = bar.widgets[position];
+  if (index >= widgets.length - 1) return;
+  
+  // Swap with next widget
+  [widgets[index], widgets[index + 1]] = [widgets[index + 1], widgets[index]];
+  
+  // Update config string
+  updateConfigWithBars(bars);
+  
+  // Re-render
+  renderEditor();
+  showToast('Widget moved down', 'success', 2);
 };
 
-window.removeWidget = function(index) {
-  showToast('Widget removal coming soon', 'info');
+window.removeWidget = function(barName, position, index) {
+  if (!editorState.config) return;
+  
+  const bars = parseConfigBars();
+  const bar = bars.find(b => b.name === barName);
+  if (!bar || !bar.widgets[position]) return;
+  
+  const widgets = bar.widgets[position];
+  if (index >= widgets.length) return;
+  
+  const widgetName = widgets[index];
+  const confirmed = confirm(`Remove widget "${widgetName}" from ${position}?`);
+  if (!confirmed) return;
+  
+  // Remove widget
+  widgets.splice(index, 1);
+  
+  // Update config string
+  updateConfigWithBars(bars);
+  
+  // Re-render
+  renderEditor();
+  showToast('Widget removed', 'success', 2);
 };
+
+window.addWidget = function(barName, position) {
+  if (!editorState.config) return;
+  
+  // Get all available widgets from config
+  const availableWidgets = getAllAvailableWidgets();
+  if (!availableWidgets || availableWidgets.length === 0) {
+    showToast('No widgets found in config.yaml', 'warn');
+    return;
+  }
+  
+  // Create dropdown overlay
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+  `;
+  
+  const panel = document.createElement('div');
+  panel.style.cssText = `
+    background: linear-gradient(180deg, #1a1a2e, #0f0f1a);
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 400px;
+    width: 90%;
+    max-height: 500px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  `;
+  
+  const title = document.createElement('h3');
+  title.textContent = `Add Widget to ${position}`;
+  title.style.cssText = `
+    margin: 0 0 16px 0;
+    color: #cbd4ff;
+    font-size: 18px;
+  `;
+  
+  const widgetList = document.createElement('div');
+  widgetList.style.cssText = `
+    max-height: 350px;
+    overflow-y: auto;
+    margin-bottom: 16px;
+  `;
+  
+  // Add each widget as a clickable item
+  availableWidgets.forEach(widgetName => {
+    const item = document.createElement('div');
+    item.textContent = widgetName;
+    item.style.cssText = `
+      padding: 10px 12px;
+      margin: 4px 0;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+      color: #cbd4ff;
+      cursor: pointer;
+      transition: all 0.2s;
+    `;
+    
+    item.addEventListener('mouseenter', () => {
+      item.style.background = 'var(--accent2, #00dfff)';
+      item.style.color = '#0a0a14';
+    });
+    
+    item.addEventListener('mouseleave', () => {
+      item.style.background = 'rgba(255, 255, 255, 0.05)';
+      item.style.color = '#cbd4ff';
+    });
+    
+    item.addEventListener('click', () => {
+      const bars = parseConfigBars();
+      const bar = bars.find(b => b.name === barName);
+      if (!bar || !bar.widgets[position]) return;
+      
+      // Add widget to position
+      bar.widgets[position].push(widgetName);
+      
+      // Update config string
+      updateConfigWithBars(bars);
+      
+      // Re-render
+      renderEditor();
+      showToast(`Added ${widgetName} to ${position}`, 'success', 2);
+      
+      // Close overlay
+      overlay.remove();
+    });
+    
+    widgetList.appendChild(item);
+  });
+  
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.style.cssText = `
+    width: 100%;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 6px;
+    color: #cbd4ff;
+    cursor: pointer;
+    font-size: 14px;
+  `;
+  
+  cancelBtn.addEventListener('click', () => overlay.remove());
+  
+  panel.appendChild(title);
+  panel.appendChild(widgetList);
+  panel.appendChild(cancelBtn);
+  overlay.appendChild(panel);
+  
+  // Close on overlay click
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.remove();
+  });
+  
+  document.body.appendChild(overlay);
+};
+
+// Helper function to get all available widgets from config
+function getAllAvailableWidgets() {
+  if (!editorState.config) return [];
+  
+  const lines = editorState.config.split('\n');
+  const widgets = [];
+  let inWidgetsSection = false;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    
+    // Detect widgets: section
+    if (line.match(/^widgets:/)) {
+      inWidgetsSection = true;
+      continue;
+    }
+    
+    if (inWidgetsSection) {
+      // Detect widget name (e.g., "  home:")
+      const widgetMatch = line.match(/^  (\w+):/);
+      if (widgetMatch) {
+        widgets.push(widgetMatch[1]);
+        continue;
+      }
+      
+      // Exit widgets section when we hit another top-level section
+      if (line.match(/^[a-z]/) && !line.match(/^  /)) {
+        break;
+      }
+    }
+  }
+  
+  return widgets.sort();
+}
+
+// Helper function to update config YAML with modified bars
+function updateConfigWithBars(bars) {
+  if (!editorState.config) return;
+  
+  const lines = editorState.config.split('\n');
+  const newLines = [];
+  let inBarsSection = false;
+  let skipUntilNextSection = false;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    
+    // Detect bars: section start
+    if (line.match(/^bars:/)) {
+      inBarsSection = true;
+      newLines.push(line);
+      
+      // Insert all bars
+      for (const bar of bars) {
+        newLines.push(`  ${bar.name}:`);
+        newLines.push(`    widgets:`);
+        
+        for (const pos of ['left', 'center', 'right']) {
+          newLines.push(`      ${pos}:`);
+          for (const widget of bar.widgets[pos]) {
+            newLines.push(`        - "${widget}"`);
+          }
+        }
+      }
+      
+      skipUntilNextSection = true;
+      continue;
+    }
+    
+    // Skip old bar content until next top-level section
+    if (skipUntilNextSection) {
+      if (line.match(/^[a-z]/) && !line.match(/^  /)) {
+        skipUntilNextSection = false;
+        inBarsSection = false;
+        newLines.push(line);
+      }
+      continue;
+    }
+    
+    newLines.push(line);
+  }
+  
+  editorState.config = newLines.join('\n');
+  editorState.unsavedChanges = true;
+}
 
 window.toggleWallpaper = async function() {
   const toggle = document.getElementById('wallpaper-toggle');
@@ -1426,8 +1699,105 @@ window.toggleWallpaper = async function() {
 };
 
 window.saveEditorChanges = async function() {
-  showToast('Save functionality coming soon', 'info');
-  // TODO: Implement save logic
+  if (!editorState.unsavedChanges) {
+    showToast('No changes to save', 'info');
+    return;
+  }
+  
+  if (!editorState.selectedTheme || !editorState.selectedSub) {
+    showToast('No theme selected', 'error');
+    return;
+  }
+  
+  try {
+    // Gather all edits from the UI
+    const updates = {
+      config: editorState.config,
+      manifest: { ...editorState.manifest }
+    };
+    
+    // Update metadata
+    const metaName = document.getElementById('meta-name');
+    const metaVersion = document.getElementById('meta-version');
+    if (metaName && metaVersion) {
+      if (!updates.manifest.meta) updates.manifest.meta = {};
+      updates.manifest.meta.name = metaName.value.trim();
+      updates.manifest.meta.version = metaVersion.value.trim();
+    }
+    
+    // Update color variables
+    const colorInputs = document.querySelectorAll('.form-input[id$="-text"]');
+    if (colorInputs.length > 0) {
+      if (!updates.manifest['root-variables']) updates.manifest['root-variables'] = {};
+      colorInputs.forEach(input => {
+        const varName = input.dataset.var;
+        if (varName && varName.startsWith('--')) {
+          updates.manifest['root-variables'][varName] = input.value.trim();
+        }
+      });
+    }
+    
+    // Update wallpaper settings
+    const workshopId = document.getElementById('workshop-id');
+    const workshopLink = document.getElementById('workshop-link');
+    if (workshopId && workshopLink) {
+      if (!updates.manifest['wallpaper-engine']) updates.manifest['wallpaper-engine'] = {};
+      
+      // Keep existing enabled state
+      const toggle = document.getElementById('wallpaper-toggle');
+      updates.manifest['wallpaper-engine'].enabled = toggle && toggle.classList.contains('enabled');
+      
+      const link = workshopLink.value.trim();
+      updates.manifest['wallpaper-engine'].link = link;
+      
+      // Extract file from workshop ID or link
+      let fileId = workshopId.value.trim();
+      if (!fileId && link) {
+        const match = link.match(/id=(\d+)/);
+        if (match) fileId = match[1];
+      }
+      if (fileId) {
+        updates.manifest['wallpaper-engine'].file = fileId;
+      }
+    }
+    
+    // Save config.yaml
+    console.log('Saving config.yaml...');
+    const configResult = await window.themeAPI.writeThemeFile(
+      editorState.selectedTheme,
+      'config.yaml',
+      updates.config
+    );
+    
+    if (configResult && configResult.error) {
+      showToast('Failed to save config.yaml: ' + configResult.error, 'error');
+      return;
+    }
+    
+    // Save manifest.json
+    console.log('Saving manifest.json...');
+    const manifestResult = await window.themeAPI.writeSubThemeManifest(
+      editorState.selectedTheme,
+      editorState.selectedSub,
+      updates.manifest
+    );
+    
+    if (manifestResult && manifestResult.error) {
+      showToast('Failed to save manifest.json: ' + manifestResult.error, 'error');
+      return;
+    }
+    
+    // Success
+    editorState.unsavedChanges = false;
+    showToast('Changes saved successfully!', 'success');
+    
+    // Update the manifest in state
+    editorState.manifest = updates.manifest;
+    
+  } catch (e) {
+    console.error('Save error:', e);
+    showToast('Failed to save: ' + e.message, 'error');
+  }
 };
 
 // Sync color inputs (delegated event listener for dynamic elements)

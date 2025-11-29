@@ -10,38 +10,11 @@ komorebi:
 
 bars:
   primary-bar:
-    enabled: true
-    screens: ["primary"]
-    class_name: "yasb-bar"
-    alignment:
-      position: "top"
-      center: false
-    animation:
-      enabled: true
-      duration: 400
-    blur_effect:
-      enabled: true
-      acrylic: false
-      dark_mode: true
-      round_corners: true
-      round_corners_type: "normal"
-      border_color: "None"
-    window_flags:
-      always_on_top: false
-      windows_app_bar: true
-    dimensions:
-      width: "100%"
-      height: 34
-    padding:
-      top: 4
-      left: 4
-      bottom: 4
-      right: 4
     widgets:
       left:
-        - "home"
         - "komorebi_workspaces"
         - "active_window"
+        - "home"
       center:
         - "audio"
         - "apps"
@@ -56,33 +29,6 @@ bars:
         - "battery"
         - "power_menu"
   other-bar:
-    enabled: true
-    screens: ["*"]
-    class_name: "yasb-bar"
-    alignment:
-      position: "top"
-      center: false
-    animation:
-      enabled: true
-      duration: 400
-    blur_effect:
-      enabled: true
-      acrylic: false
-      dark_mode: true
-      round_corners: true
-      round_corners_type: "normal"
-      border_color: "None"
-    window_flags:
-      always_on_top: false
-      windows_app_bar: true
-    dimensions:
-      width: "100%"
-      height: 34
-    padding:
-      top: 4
-      left: 4
-      bottom: 4
-      right: 4
     widgets:
       left:
         - "home"

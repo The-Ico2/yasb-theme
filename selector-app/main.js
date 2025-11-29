@@ -821,6 +821,18 @@ ipcMain.handle('read-theme-file', (event, theme, filename) => {
   }
 });
 
+// Write theme config file (config.yaml)
+ipcMain.handle('write-theme-file', (event, theme, filename, content) => {
+  try {
+    const yasbThemesDir = path.join(__dirname, '..', 'yasb-themes');
+    const filePath = path.join(yasbThemesDir, theme, filename);
+    fs.writeFileSync(filePath, content, 'utf8');
+    return { ok: true };
+  } catch (e) {
+    return { error: e && e.message ? e.message : String(e) };
+  }
+});
+
 // Read sub-theme manifest
 ipcMain.handle('read-subtheme-manifest', (event, theme, sub) => {
   try {
@@ -831,6 +843,19 @@ ipcMain.handle('read-subtheme-manifest', (event, theme, sub) => {
     let manifest = {};
     try { manifest = JSON.parse(raw); } catch (e) { manifest = {}; }
     return { manifest };
+  } catch (e) {
+    return { error: e && e.message ? e.message : String(e) };
+  }
+});
+
+// Write sub-theme manifest
+ipcMain.handle('write-subtheme-manifest', (event, theme, sub, manifest) => {
+  try {
+    const yasbThemesDir = path.join(__dirname, '..', 'yasb-themes');
+    const manifestPath = path.join(yasbThemesDir, theme, 'sub-themes', sub, 'manifest.json');
+    const content = JSON.stringify(manifest, null, 2);
+    fs.writeFileSync(manifestPath, content, 'utf8');
+    return { ok: true };
   } catch (e) {
     return { error: e && e.message ? e.message : String(e) };
   }

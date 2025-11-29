@@ -10,46 +10,38 @@
     "--text-light": "#e6e6ff",
     "--text-gray": "#9aa0c0",
     "--text-dark": "#424247",
-
     "--glow1": "rgba(188, 19, 254, 0.85)",
     "--glow2": "rgba(0, 223, 255, 0.85)",
     "--glow3": "rgba(255, 103, 198, 0.85)",
-
     "--glow1-soft": "rgba(188, 19, 254, 0.20)",
     "--glow2-soft": "rgba(0, 223, 255, 0.20)",
     "--glow3-soft": "rgba(255, 103, 198, 0.20)",
-
     "--bg-dark": "#070712",
     "--bg-darker": "#04040a",
     "--bg-panel": "rgba(10, 10, 20, 0.85)",
     "--bg-surface": "rgba(16, 16, 32, 0.55)",
     "--bg-surface-hover": "rgba(255,255,255,0.10)",
-
     "--bg-widget": "rgba(18, 18, 34, 0.65)",
     "--bg-widget-hover": "rgba(255,255,255,0.12)",
     "--bg-widget-active": "rgba(255,255,255,0.18)",
     "--text-accent1": "#bc13fe",
     "--text-accent2": "#00dfff",
     "--text-accent3": "#ff67c6",
-
     "--border-soft": "rgba(255,255,255,0.08)",
     "--border-strong": "rgba(255,255,255,0.16)",
-
     "--shadow-strong": "0px 0px 18px rgba(0, 0, 0, 0.70)",
     "--shadow-glow1": "0px 0px 12px rgba(188, 19, 254, 0.85)",
     "--shadow-glow2": "0px 0px 12px rgba(0, 223, 255, 0.85)",
     "--shadow-glow3": "0px 0px 12px rgba(255, 103, 198, 0.85)",
-
     "--glass-1": "rgba(255, 255, 255, 0.08)",
     "--glass-2": "rgba(255, 255, 255, 0.12)",
     "--glass-3": "rgba(255, 255, 255, 0.18)",
-
     "--btn-hover": "rgba(0, 223, 255, 0.20)",
     "--btn-active": "rgba(188, 19, 254, 0.20)"
   },
   "wallpaper-engine": {
     "enabled": true,
-    "file": "$subTheme/wallpaper/project.json",
+    "file": "3163333989",
     "link": "https://steamcommunity.com/sharedfiles/filedetails/?id=3163333989"
   }
 }

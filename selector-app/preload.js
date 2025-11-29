@@ -23,6 +23,8 @@ const themeAPI = {
   // editor functions
   readThemeFile: (theme, filename) => ipcRenderer.invoke('read-theme-file', theme, filename),
   readSubThemeManifest: (theme, sub) => ipcRenderer.invoke('read-subtheme-manifest', theme, sub),
+  writeThemeFile: (theme, filename, content) => ipcRenderer.invoke('write-theme-file', theme, filename, content),
+  writeSubThemeManifest: (theme, sub, manifest) => ipcRenderer.invoke('write-subtheme-manifest', theme, sub, manifest),
 
   // convenience
   showSelector: () => ipcRenderer.invoke('show-selector')
