@@ -1,0 +1,1 @@
+// Will eventually be a dedictated file for renderinf the status bar in the eidtor live preview and anywhere else needed

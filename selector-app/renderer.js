@@ -932,38 +932,65 @@ function renderPreviewWidget(widgetName, config) {
   let label = options.label || '';
   let icon = '';
   
-  // Extract icon from label
-  if (label.includes('<span>') && label.includes('</span>')) {
+  // Convert unicode escapes in label first
+  if (label && label.includes('\\u')) {
+    label = label.replace(/\\u([0-9a-fA-F]{4})/g, (match, code) => String.fromCharCode(parseInt(code, 16)));
+  }
+  
+  // Extract icon from label - handle <span>{icon}</span> pattern
+  if (label.includes('<span>{icon}</span>')) {
+    // Icon comes from options.icons or a specific icon field
+    if (options.icons) {
+      // For widgets with icon arrays (like volume, wifi)
+      if (Array.isArray(options.icons)) {
+        icon = options.icons[2] || options.icons[0] || ''; // Use middle icon as sample
+      } else if (typeof options.icons === 'object') {
+        // For widgets with named icons (like bluetooth, media)
+        icon = options.icons.bluetooth_on || options.icons.normal || options.icons.play || Object.values(options.icons)[0] || '';
+      }
+    } else if (options.volume_icons) {
+      icon = options.volume_icons[2] || options.volume_icons[0] || '';
+    } else if (options.wifi_icons) {
+      icon = options.wifi_icons[3] || options.wifi_icons[0] || '';
+    }
+    // Convert unicode escapes in icon
+    if (icon && icon.includes('\\u')) {
+      icon = icon.replace(/\\u([0-9a-fA-F]{4})/g, (match, code) => String.fromCharCode(parseInt(code, 16)));
+    }
+    label = label.replace('<span>{icon}</span>', '').trim();
+  } else if (label.includes('<span>') && label.includes('</span>')) {
+    // Extract literal icon from <span>icon</span>
     const iconMatch = label.match(/<span>([^<]+)<\/span>/);
     if (iconMatch) {
       icon = iconMatch[1];
       label = label.replace(/<span>[^<]+<\/span>\s*/g, '');
     }
+  } else if (label && !label.includes('{') && !label.includes(' ')) {
+    // If label is a single icon character/escape with no placeholders, treat as icon
+    icon = label;
+    label = '';
   }
   
   // Widget-specific sample data
   const widgetSamples = {
-    'home': { icon: icon || '', label: '' },
-    'komorebi_workspaces': { icon: '', label: '' },
-    'active_window': { icon: '', label: 'Visual Studio Code' },
+    'home': { icon: icon || '\uf192', label: '' },
+    'komorebi_workspaces': { icon: '', label: '\udb80\udd2f \udb80\udd30 \udb80\udd30 \udb80\udd30 \udb80\udd30' },
+    'active_window': { icon: '\uf121', label: '  Visual Studio Code' },
     'clock': { icon: '', label: new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: false}) },
-    'cpu': { icon: '', label: 'CPU 45%' },
-    'memory': { icon: '', label: 'MEM 62%' },
-    'gpu': { icon: '', label: 'GPU 38%' },
-    'disk': { icon: '', label: 'Disk 58%' },
-    'volume': { icon: icon || '', label: '50' },
-    'microphone': { icon: icon || '', label: '' },
-    'media': { icon: icon || '', label: '' },
+    'sysinfo': { icon: '', label: 'MEM | CPU | GPU | Disk' },
+    'volume': { icon: icon || '\uf027', label: ' 50' },
+    'microphone': { icon: icon || '\uf130', label: '' },
+    'media': { icon: icon || '', label: '\uf025' },
     'cava': { icon: '', label: '' },
-    'wifi': { icon: icon || '', label: '' },
-    'battery': { icon: icon || ' ', label: '85%' },
-    'bluetooth': { icon: icon || '', label: '2' },
-    'notifications': { icon: icon || '', label: '3' },
-    'systray': { icon: '', label: '      ' },
-    'power_menu': { icon: icon || '', label: '' },
-    'apps': { icon: '', label: '  ' },
-    'bin': { icon: icon || '󰩹', label: '12 (2.4MB)' },
-    'theme_switcher': { icon: icon || '󰃟', label: '' },
+    'wifi': { icon: icon || '\ueba9', label: '' },
+    'battery': { icon: icon || '\uf240', label: ' 85%' },
+    'bluetooth': { icon: icon || '\udb80\udcaf', label: ' 2' },
+    'notifications': { icon: icon || '\uf476', label: ' 3' },
+    'systray': { icon: '\uf47d', label: '' },
+    'power_menu': { icon: icon || '\uf011', label: '' },
+    'apps': { icon: '', label: '\ueb03 \uf282 \uf489' },
+    'bin': { icon: icon || '\udb82\ude79', label: ' 12 (2.4MB)' },
+    'theme_switcher': { icon: icon || '\udb83\ude09', label: '' },
   };
   
   // Get sample data for this widget
